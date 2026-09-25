@@ -1,57 +1,47 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FlowDrive — Smarter vehicle readiness</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="announcement"><span>●</span> The modern operating system for vehicle reconditioning <a href="#workflow">See how it works →</a></div>
-    <nav>
-      <a class="brand" href="#"><i></i> flowdrive</a>
-      <div class="nav-links"><a href="#workflow">Platform</a><a href="#departments">Departments</a><a href="#results">Results</a></div>
-      <a class="nav-button" href="#demo">Book a demo <b>→</b></a>
-    </nav>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f6f7f5" />
+  <title>Fieldnote · Vehicle Service Records</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Fieldnote home"><span class="brand-mark">F</span><span class="brand-name">fieldnote<small>VEHICLE SERVICE</small></span></a>
+    <div class="top-actions"><span class="storage-state"><i></i> Saved on this device</span><button class="icon-button" id="exportBtn" title="Export records" aria-label="Export records">⇧</button><button class="primary-button" id="addCarBtn"><span>＋</span> New service record</button></div>
+  </header>
+  <main class="main">
+    <section class="page-heading"><div><div class="eyebrow">SERVICE OPERATIONS</div><h1>Vehicle service records</h1><p>Find a vehicle, follow its progress, and keep every service update in one place.</p></div></section>
+    <section class="board">
+      <div class="board-header"><div><h2>All service records <span class="total-count" id="countAll">0</span></h2><p>Search by registration, vehicle, or customer</p></div><button class="text-button" id="backupBtn">Export backup <span>↓</span></button></div>
+      <div class="toolbar"><label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search registration, vehicle, or customer" autocomplete="off"/><kbd>⌘ K</kbd></label><div class="filters" id="filters"><button class="filter active" data-filter="all">All <span id="filterAll">0</span></button><button class="filter" data-filter="not_started">Not started <span id="countNotStarted">0</span></button><button class="filter" data-filter="in_progress">In progress <span id="countActive">0</span></button><button class="filter" data-filter="completed">Completed <span id="countDone">0</span></button></div></div>
+      <div class="table-wrap"><table><thead><tr><th>VEHICLE / CUSTOMER</th><th>SERVICE</th><th>STATUS</th><th>EST. TIME</th><th>LAST UPDATE</th><th></th></tr></thead><tbody id="vehicleRows"></tbody></table><div class="empty-state hidden" id="emptyState"><div class="empty-illustration">⌕</div><b>No service records yet</b><p>Create a service record to start tracking a vehicle.</p><button class="secondary-button" id="emptyAddBtn">＋ New service record</button></div></div>
+      <div class="table-footer"><span id="listSummary">0 records</span><span>Updates are saved automatically</span></div>
+    </section>
+    <footer class="footer">Fieldnote <span>·</span> Vehicle service records</footer>
+  </main>
 
-    <main>
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">VEHICLE READINESS, REIMAGINED</p>
-          <h1>Every car.<br /><em>Ready on time.</em></h1>
-          <p class="lede">FlowDrive brings your service lane, body shop, detail and sales teams into one intelligent vehicle workflow.</p>
-          <div class="hero-actions"><a class="primary-button" href="#demo">See FlowDrive in action <span>→</span></a><a class="play" href="#workflow"><b>▶</b> Watch overview</a></div>
-          <div class="trusted"><span>TRUSTED BY FORWARD-THINKING DEALERSHIPS</span><div class="logos"><b>northstar</b><b>VANTAGE</b><b>motormark</b></div></div>
-        </div>
-        <div class="hero-visual">
-          <div class="glow"></div>
-          <div class="phone">
-            <div class="phone-top"><span>9:41</span><span>•••</span></div>
-            <div class="app-head"><div><small>Good morning, Alex</small><strong>Vehicle queue</strong></div><span class="avatar">AM</span></div>
-            <div class="vehicle-card"><div class="car-photo"><span>2024</span><div class="car-art"><div></div></div></div><div class="vehicle-info"><strong>BMW X5 xDrive40i</strong><small>VIN ending 8803 · Stock #28176</small><div><span class="chip warning">In reconditioning</span><span>67% complete</span></div></div></div>
-            <div class="progress-title"><b>Readiness progress</b><span>4 of 6 complete</span></div>
-            <div class="progress"><i></i></div>
-            <div class="tasks"><div class="task done"><span>✓</span><p><b>Initial inspection</b><small>Service · Completed today</small></p><time>9:25 AM</time></div><div class="task active"><span>◌</span><p><b>Exterior repair</b><small>Body shop · In progress</small></p><time>Due Fri</time></div><div class="task"><span>○</span><p><b>Detail &amp; photography</b><small>Cosmetics · Up next</small></p><time>—</time></div></div>
-          </div>
-          <div class="float-card ai-card"><span class="spark">✦</span><div><small>AI assessment</small><b>3 items detected</b></div><i>›</i></div>
-          <div class="float-card eta-card"><span>↗</span><div><small>Estimated ready</small><b>Friday, 2:30 PM</b></div></div>
-        </div>
-      </section>
+  <div class="overlay hidden" id="detailOverlay"><aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="detailTitle"><div class="drawer-head"><div><div class="eyebrow">VEHICLE RECORD</div><h2 id="detailTitle">Service record</h2></div><button class="close-button" data-close="detailOverlay" aria-label="Close">×</button></div><div id="detailContent"></div></aside></div>
 
-      <section class="metrics" id="results"><div><strong>32%</strong><span>faster time<br />to frontline</span></div><div><strong>4.8<span>hrs</span></strong><span>saved per<br />vehicle</span></div><div><strong>98%</strong><span>on-time<br />completion</span></div><div><strong>1</strong><span>connected<br />workspace</span></div></section>
+  <div class="overlay hidden" id="intakeOverlay"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="intakeTitle"><div class="modal-head"><div><div class="eyebrow">NEW SERVICE</div><h2 id="intakeTitle">New service record</h2><p>Capture the vehicle, customer request, and current service estimate.</p></div><button class="close-button" data-close="intakeOverlay" aria-label="Close">×</button></div>
+    <form id="intakeForm"><div class="form-grid">
+      <div class="field full"><span>Vehicle photo <i>*</i></span><div class="photo-capture" id="photoCapture"><div class="photo-preview" id="photoPreview"><span class="camera-glyph">▧</span><span>Take a photo or upload an image</span></div><div class="photo-buttons"><button type="button" class="secondary-button" id="cameraBtn">▣ Open camera</button><button type="button" class="secondary-button" id="uploadBtn">↑ Upload photo</button><span class="scan-hint" id="scanHint">A clear registration plate helps OCR.</span></div><input name="photoFile" id="photoFile" type="file" accept="image/*" capture="environment" hidden /></div></div>
+      <label class="field"><span>Registration / plate <i>*</i></span><div class="input-with-action"><input name="plate" id="plateInput" required maxlength="16" placeholder="e.g. ABC123" /><button type="button" class="mini-action" id="scanPlateBtn" title="Read plate from photo">Scan photo</button></div></label>
+      <label class="field"><span>Make and model</span><input name="vehicle" id="vehicleInput" placeholder="e.g. Toyota Corolla" /></label>
+      <label class="field"><span>Customer name</span><input name="customer" placeholder="Customer name" /></label>
+      <label class="field"><span>Phone number</span><input name="phone" inputmode="tel" placeholder="For service updates" /></label>
+      <div class="field full"><span>Services <i>*</i></span><div class="service-checks" id="serviceChoices"><label><input type="checkbox" value="Repair"><span>Repair</span></label><label><input type="checkbox" value="Wash"><span>Wash</span></label><label><input type="checkbox" value="Rental"><span>Rental</span></label><label><input type="checkbox" value="Sales"><span>Sales</span></label></div></div>
+      <div class="field full hidden" id="serviceItemsField"><span>Service item title and estimated time <i>*</i></span><div class="service-item-inputs" id="serviceItemInputs"></div><span class="field-hint">Each selected service is tracked separately. You can edit every title and estimate.</span></div>
+      <label class="field full"><span>Customer request / vehicle condition</span><div class="textarea-wrap"><textarea name="request" id="requestInput" rows="3" placeholder="Describe the customer's request, symptoms, or handover notes…"></textarea><button type="button" class="record-button" id="recordRequestBtn" title="Record voice note">◉ <span>Record</span></button></div><span class="field-hint" id="voiceHint">Voice input uses your browser's speech recognition.</span></label>
+      <div class="full estimate-note" id="estimateNote">Editable time suggestions are generated from service type. Connect an AI endpoint for vehicle-specific predictions.</div>
+    </div><div class="modal-actions"><button type="button" class="secondary-button" data-close="intakeOverlay">Cancel</button><button type="submit" class="primary-button">Create record <span>→</span></button></div></form>
+  </section></div>
 
-      <section class="workflow" id="workflow">
-        <div class="section-intro"><p class="eyebrow">ONE CLEAR PATH TO READY</p><h2>From arrival to<br /><em>frontline, in flow.</em></h2><p>Give every vehicle a visible, accountable journey. FlowDrive knows what needs to happen, who owns it and when it will be done.</p></div>
-        <div class="flow-grid"><article class="flow-card dark"><span class="step">01</span><span class="icon">⌁</span><h3>Capture every detail</h3><p>Upload photos, condition notes and vehicle information from anywhere on the lot.</p><div class="mini-capture"><div class="thumb">⌁</div><div><b>Walkaround complete</b><small>24 photos · 2 notes</small></div><span>✓</span></div></article><article class="flow-card"><span class="step">02</span><span class="icon purple">✦</span><h3>Let AI map the work</h3><p>AI identifies condition issues and automatically builds the right reconditioning plan.</p><div class="scan-lines"><i></i><i></i><i></i><span>AI analysis complete</span></div></article><article class="flow-card cream"><span class="step">03</span><span class="icon orange">↗</span><h3>Keep every team moving</h3><p>Smart routing assigns tasks to the right department with clear due dates.</p><div class="mini-team"><span class="purple-dot"></span><div><b>Body Shop</b><small>2 tasks assigned</small></div><em>Today</em></div><div class="mini-team"><span class="orange-dot"></span><div><b>Detailing</b><small>Next in queue</small></div><em>Tomorrow</em></div></article></div>
-      </section>
-
-      <section class="departments" id="departments"><div class="dept-heading"><p class="eyebrow">BUILT FOR THE WHOLE DEALERSHIP</p><h2>One vehicle story.<br /><em>Every department aligned.</em></h2></div><div class="dept-list"><div><span class="dept-icon purple">⌁</span><p><b>Service</b><small>Inspection, diagnostics &amp; mechanical repair</small></p><span class="dept-arrow">↗</span></div><div><span class="dept-icon orange">◒</span><p><b>Body Shop</b><small>Damage assessment, repair &amp; paint</small></p><span class="dept-arrow">↗</span></div><div><span class="dept-icon green">✦</span><p><b>Detail &amp; Cosmetics</b><small>Reconditioning, photos &amp; presentation</small></p><span class="dept-arrow">↗</span></div><div><span class="dept-icon blue">□</span><p><b>Sales</b><small>Frontline visibility and delivery readiness</small></p><span class="dept-arrow">↗</span></div></div></section>
-
-      <section class="cta" id="demo"><div class="cta-orb one"></div><div class="cta-orb two"></div><p class="eyebrow">READY TO RUN A TIGHTER LANE?</p><h2>Your lot is waiting.<br /><em>Let's get moving.</em></h2><a class="primary-button light" href="mailto:hello@flowdrive.com">Book your demo <span>→</span></a><small>No credit card. No complicated setup. Just clearer workflows.</small></section>
-    </main>
-    <footer><a class="brand" href="#"><i></i> flowdrive</a><span>© 2024 FlowDrive. Built for the road ahead.</span><div><a href="#">Privacy</a><a href="#">Terms</a><a href="#">LinkedIn</a></div></footer>
-  </body>
+  <div class="overlay hidden" id="cameraOverlay"><section class="modal camera-modal" role="dialog" aria-modal="true" aria-labelledby="cameraTitle"><div class="modal-head"><div><div class="eyebrow">VEHICLE PHOTO</div><h2 id="cameraTitle">Take a photo</h2><p>Position the vehicle and registration plate in frame.</p></div><button class="close-button" data-close="cameraOverlay" aria-label="Close">×</button></div><video id="cameraVideo" autoplay playsinline></video><div class="modal-actions"><button class="secondary-button" id="switchCameraBtn">Switch camera</button><button class="primary-button" id="captureBtn">Capture photo</button></div></section></div>
+  <div class="overlay hidden" id="statusOverlay"><section class="modal status-modal" role="dialog" aria-modal="true" aria-labelledby="statusModalTitle"><div class="modal-head"><div><div class="eyebrow">SERVICE STATUS</div><h2 id="statusModalTitle">Change status</h2><p id="statusModalSubtitle">Update this service item and add a note to the history.</p></div><button class="close-button" data-close="statusOverlay" aria-label="Close">×</button></div><form id="statusForm"><input type="hidden" name="serviceItemId" id="statusServiceItemId"><label class="field"><span>Service item</span><input id="statusServiceTitle" readonly></label><label class="field" style="margin-top:13px"><span>New status <i>*</i></span><select name="status" id="statusSelect"><option value="not_started">Not started</option><option value="in_progress">In progress</option><option value="completed">Completed</option></select></label><label class="field" style="margin-top:13px"><span>Update details</span><div class="textarea-wrap"><textarea name="note" id="statusNote" rows="4" placeholder="Why is the status changing? Add a brief service update…"></textarea><button type="button" class="record-button" id="recordStatusBtn" title="Record a voice note">◉ <span>Record</span></button></div><span class="field-hint">A status change is always saved in the service history.</span></label><div class="modal-actions"><button type="button" class="secondary-button" data-close="statusOverlay">Cancel</button><button type="submit" class="primary-button">Save status update <span>→</span></button></div></form></section></div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="./app.js"></script>
+</body>
 </html>
