@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f8f5" />
+    <title>Vehicle intake — FlowDrive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="vehicles.css" />
+    <script type="module" src="vehicles.js"></script>
+  </head>
+  <body class="intake-page">
+    <header class="intake-nav">
+      <a class="brand" href="index.html"><i></i> flowdrive</a>
+      <a class="intake-back" href="index.html">← Back to overview</a>
+    </header>
+    <main class="intake-shell">
+      <section class="intake-intro">
+        <p class="eyebrow">VEHICLE WORKSPACE <span class="workspace-dot"></span></p>
+        <h1>Start with<br /><em>the full picture.</em></h1>
+        <p>Record the vehicle once. Its details will be ready for every team and every step that follows.</p>
+        <div class="intake-trust"><span>↗</span> One shared vehicle record, kept up to date.</div>
+      </section>
+      <section class="intake-card" aria-labelledby="form-title">
+        <div id="auth-panel" class="auth-panel" hidden>
+          <div><strong id="auth-title">Sign in to your workspace</strong><p id="auth-help">Use your FlowDrive team account to access shared vehicle records.</p></div>
+          <form id="auth-form" class="auth-form">
+            <label class="auth-field">Email<input type="email" name="email" required autocomplete="email" placeholder="you@dealership.com" /></label>
+            <label class="auth-field">Password<input type="password" name="password" required minlength="8" autocomplete="current-password" placeholder="At least 8 characters" /></label>
+            <button class="save-button" type="submit" id="auth-submit">Sign in <b>→</b></button>
+          </form>
+          <p id="auth-message" class="form-message" role="status" aria-live="polite"></p>
+          <button id="auth-toggle" class="auth-toggle" type="button">Create an account</button>
+        </div>
+        <div id="signed-in-panel" class="signed-in-panel" hidden><span id="signed-in-email"></span><button id="sign-out" type="button">Sign out</button></div>
+        <div class="intake-card-head">
+          <div><p class="eyebrow">NEW ARRIVAL <span>01 / 03</span></p><h2 id="form-title">Vehicle details</h2></div>
+          <span class="required-note">* Required</span>
+        </div>
+        <form id="vehicle-form">
+          <div class="field-grid">
+            <label class="field field-wide">VIN <span>*</span><input name="vin" autocomplete="off" maxlength="17" required placeholder="17-character vehicle identification number" /><small>Used to identify this vehicle across your workspace.</small></label>
+            <label class="field">Stock number<input name="stock_number" maxlength="40" placeholder="e.g. FD-1042" /></label>
+            <label class="field">Year <span>*</span><input name="model_year" type="number" min="1886" max="2100" required placeholder="2024" /></label>
+            <label class="field">Make <span>*</span><input name="make" maxlength="80" required placeholder="e.g. Toyota" /></label>
+            <label class="field">Model <span>*</span><input name="model" maxlength="100" required placeholder="e.g. RAV4" /></label>
+            <label class="field">Trim<input name="trim" maxlength="100" placeholder="e.g. Limited AWD" /></label>
+            <label class="field">Mileage<input name="mileage" type="number" min="0" step="1" placeholder="Odometer reading" /></label>
+            <label class="field">Exterior colour<input name="exterior_color" maxlength="50" placeholder="e.g. Magnetic grey" /></label>
+            <label class="field">Fuel type<select name="fuel_type"><option value="">Select fuel type</option><option>Petrol</option><option>Diesel</option><option>Hybrid</option><option>Plug-in hybrid</option><option>Electric</option><option>Other</option></select></label>
+            <label class="field">Transmission<select name="transmission"><option value="">Select transmission</option><option>Automatic</option><option>Manual</option><option>CVT</option><option>Other</option></select></label>
+            <label class="field field-wide">Intake notes<textarea name="notes" rows="3" maxlength="2000" placeholder="Anything the next team should know? (optional)"></textarea></label>
+          </div>
+          <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+          <div class="form-actions"><span>Details can be updated by your team at any time.</span><button class="save-button" type="submit">Save vehicle <b>→</b></button></div>
+        </form>
+      </section>
+    </main>
+    <section class="vehicle-list-wrap" aria-labelledby="vehicles-title">
+      <div class="vehicle-list-heading"><div><p class="eyebrow">SHARED WORKSPACE</p><h2 id="vehicles-title">Recent vehicles</h2></div><span id="vehicle-count" class="vehicle-count">Loading…</span></div>
+      <div id="vehicle-list" class="vehicle-list"><p class="list-empty">Connecting to your workspace…</p></div>
+    </section>
+    <footer class="intake-footer"><span>FlowDrive · Vehicle intake</span><span>Shared across your workspace</span></footer>
+  </body>
+</html>
