@@ -1,15 +1,10 @@
 const queueBody = document.querySelector('#queue-body');
 const toast = document.querySelector('#toast');
 const storageKey = 'flowdrive-workboard-v1';
-const teamMembers = {
-  wash: ['Riley Chen', 'Jamie Park'],
-  service: ['Sam Patel', 'Jordan Kim'],
-  inspection: ['Morgan Lee', 'Taylor Reed'],
-};
 let notifications = [
   { title: 'Service is at capacity', detail: 'The Ford Explorer repair is queued for the next open slot.', unread: true },
   { title: 'Rental return due today', detail: 'Toyota RAV4 needs wash and detail before its 2:00 PM pickup.', unread: true },
-  { title: 'Shift plan ready', detail: 'Four pending jobs are sequenced for today.', unread: false },
+  { title: 'Shift plan ready', detail: 'Four pending jobs are routed to their departments.', unread: false },
 ];
 let toastTimer;
 
@@ -52,7 +47,6 @@ function saveWorkboard() {
     rows: [...queueBody.querySelectorAll('tr')].map((row) => ({
       stock: row.querySelector('td:nth-child(2) small').textContent,
       status: row.dataset.state,
-      assignee: row.querySelector('.assignee').value,
       dueDate: row.querySelector('.due-date').value,
     })),
     departments: [...document.querySelectorAll('.department-card')].map((card) => ({
@@ -65,7 +59,64 @@ function saveWorkboard() {
   try {
     window.localStorage.setItem(storageKey, JSON.stringify(state));
   } catch {
-    // The demo remains usable when local file storage is unavailable.
+    // The demo remains usable when browser storage is unavailable.
+  }
+}
+
+function getDepartment(name) {
+  return document.querySelector(`.department-card[data-department="${name}"]`);
+}
+
+function updatePendingSummary() {
+  const pending = queueBody.querySelectorAll('tr[data-state="pending"], tr[data-state="waiting"]').length;
+  const ready = queueBody.querySelectorAll('tr[data-state="pending"]').length;
+  const waiting = queueBody.querySelectorAll('tr[data-state="waiting"]').length;
+  document.querySelector('#pending-count').innerHTML = `${pending} <em>jobs</em>`;
+  document.querySelector('#pending-foot').textContent = `${ready} can start now · ${waiting} waiting for capacity`;
+}
+
+function updateDepartment(name) {
+  const card = getDepartment(name);
+  const used = card.querySelector('.used');
+  const open = card.querySelector('.open');
+  const capacity = Number(used.textContent) + Number(open.textContent);
+  const percentage = capacity ? Math.round((Number(used.textContent) / capacity) * 100) : 0;
+  const track = card.querySelector('.bar i');
+  const label = card.querySelector('.load-pill');
+  track.style.width = `${percentage}%`;
+  label.classList.remove('full-pill', 'balanced', 'light-pill');
+  if (Number(open.textContent) === 0) {
+    label.textContent = 'At capacity';
+    label.classList.add('full-pill');
+  } else if (percentage >= 70) {
+    label.textContent = 'Busy';
+    label.classList.add('balanced');
+  } else {
+    label.textContent = 'Room available';
+    label.classList.add('light-pill');
+  }
+
+  queueBody.querySelectorAll(`tr[data-dept="${name}"]`).forEach((row) => {
+    const routeNote = row.querySelector('.route-note');
+    if (routeNote && row.dataset.state !== 'active') {
+      routeNote.textContent = Number(open.textContent) === 0
+        ? 'AI routed · at capacity'
+        : `AI routed · ${open.textContent} slot${Number(open.textContent) === 1 ? '' : 's'} open`;
+    }
+  });
+
+  if (Number(open.textContent) > 0) {
+    const waitingRow = queueBody.querySelector(`tr[data-state="waiting"][data-dept="${name}"]`);
+    if (waitingRow) {
+      waitingRow.dataset.state = 'pending';
+      waitingRow.classList.remove('blocked-row');
+      waitingRow.querySelector('.reason').textContent = 'Department slot available';
+      waitingRow.querySelector('.reason').classList.remove('blocked');
+      const startButton = waitingRow.querySelector('.complete');
+      startButton.disabled = false;
+      startButton.textContent = 'Start job';
+      addNotification('Department capacity opened', `${name} can now start the waiting ${waitingRow.querySelector('.job-tag').textContent.toLowerCase()} job.`);
+    }
   }
 }
 
@@ -81,7 +132,6 @@ function restoreWorkboard() {
     const row = [...queueBody.querySelectorAll('tr')].find((candidate) => candidate.querySelector('td:nth-child(2) small').textContent === saved.stock);
     if (!row) return;
     row.dataset.state = saved.status;
-    row.querySelector('.assignee').value = saved.assignee;
     row.querySelector('.due-date').value = saved.dueDate;
     const button = row.querySelector('.complete');
     if (saved.status === 'waiting') {
@@ -111,49 +161,6 @@ function restoreWorkboard() {
   document.querySelector('#ready-count').innerHTML = `${state.readyCount} <em>vehicles</em>`;
 }
 
-function renderWorkload() {
-  const grid = document.querySelector('#workload-grid');
-  grid.replaceChildren();
-  Object.entries(teamMembers).forEach(([department, members]) => {
-    const card = document.createElement('article');
-    card.className = 'workload-card';
-    card.dataset.team = department;
-    const title = document.createElement('div');
-    title.className = 'workload-card-heading';
-    const name = document.createElement('b');
-    name.textContent = { wash: 'Wash & detail', service: 'Service & repair', inspection: 'Inspection' }[department];
-    const count = document.createElement('span');
-    count.className = 'team-total';
-    title.append(name, count);
-    card.append(title);
-    members.forEach((member) => {
-      const rows = [...queueBody.querySelectorAll('tr')].filter((row) => row.dataset.dept === department && row.dataset.state !== 'completed' && row.querySelector('.assignee').value === member);
-      const line = document.createElement('div');
-      line.className = 'staff-load';
-      const identity = document.createElement('div');
-      identity.className = 'staff-identity';
-      const avatar = document.createElement('span');
-      avatar.className = 'staff-avatar';
-      avatar.textContent = member.split(' ').map((part) => part[0]).join('');
-      const label = document.createElement('span');
-      label.textContent = member;
-      identity.append(avatar, label);
-      const jobs = document.createElement('small');
-      jobs.textContent = `${rows.length} ${rows.length === 1 ? 'job' : 'jobs'}`;
-      line.append(identity, jobs);
-      const bar = document.createElement('div');
-      bar.className = 'staff-bar';
-      const fill = document.createElement('i');
-      fill.style.width = `${Math.min(rows.length * 33, 100)}%`;
-      bar.append(fill);
-      card.append(line, bar);
-    });
-    const activeAssignments = [...queueBody.querySelectorAll('tr')].filter((row) => row.dataset.dept === department && row.dataset.state !== 'completed' && row.querySelector('.assignee').value).length;
-    count.textContent = `${activeAssignments} assigned`;
-    grid.append(card);
-  });
-}
-
 document.querySelectorAll('.explain').forEach((button) => {
   button.addEventListener('click', () => {
     const explanation = button.parentElement.querySelector('.explanation');
@@ -164,57 +171,9 @@ document.querySelectorAll('.explain').forEach((button) => {
   });
 });
 
-function getDepartment(name) {
-  return document.querySelector(`.department-card[data-department="${name}"]`);
-}
-
-function updateDepartment(name) {
-  const card = getDepartment(name);
-  const used = card.querySelector('.used');
-  const open = card.querySelector('.open');
-  const capacity = Number(used.textContent) + Number(open.textContent);
-  const percentage = capacity ? Math.round((Number(used.textContent) / capacity) * 100) : 0;
-  const track = card.querySelector('.bar i');
-  const label = card.querySelector('.load-pill');
-  track.style.width = `${percentage}%`;
-  label.classList.remove('full-pill', 'balanced', 'light-pill');
-  if (Number(open.textContent) === 0) {
-    label.textContent = 'At capacity';
-    label.classList.add('full-pill');
-  } else if (percentage >= 70) {
-    label.textContent = 'Busy';
-    label.classList.add('balanced');
-  } else {
-    label.textContent = 'Room available';
-    label.classList.add('light-pill');
-  }
-
-  if (name === 'service' && Number(open.textContent) > 0) {
-    const waitingRow = queueBody.querySelector('tr[data-state="waiting"][data-dept="service"]');
-    if (waitingRow) {
-      waitingRow.dataset.state = 'pending';
-      waitingRow.classList.remove('blocked-row');
-      waitingRow.querySelector('.reason').textContent = 'Slot available · start next';
-      waitingRow.querySelector('.reason').classList.remove('blocked');
-      const startButton = waitingRow.querySelector('.complete');
-      startButton.disabled = false;
-      startButton.textContent = 'Start job';
-    }
-  }
-}
-
-function updatePendingSummary() {
-  const pending = queueBody.querySelectorAll('tr[data-state="pending"], tr[data-state="waiting"]').length;
-  const ready = queueBody.querySelectorAll('tr[data-state="pending"]').length;
-  const waiting = queueBody.querySelectorAll('tr[data-state="waiting"]').length;
-  document.querySelector('#pending-count').innerHTML = `${pending} <em>jobs</em>`;
-  document.querySelector('#pending-foot').textContent = `${ready} can start now · ${waiting} waiting for capacity`;
-}
-
 queueBody.addEventListener('click', (event) => {
   const button = event.target.closest('.complete');
   if (!button || button.disabled) return;
-
   const row = button.closest('tr');
   const departmentName = button.dataset.department;
   const department = getDepartment(departmentName);
@@ -232,9 +191,8 @@ queueBody.addEventListener('click', (event) => {
     button.textContent = 'Complete job';
     updateDepartment(departmentName);
     updatePendingSummary();
-    renderWorkload();
     saveWorkboard();
-    addNotification('Job started', `${vehicle} is now in progress with ${row.querySelector('.assignee').value}.`);
+    addNotification('Job started', `${vehicle} is now in progress with the ${departmentName} department.`);
     notify(`${vehicle}: job started. ${open.textContent} ${departmentName} slot(s) remain.`);
     return;
   }
@@ -250,7 +208,6 @@ queueBody.addEventListener('click', (event) => {
     button.disabled = true;
     updateDepartment(departmentName);
     updatePendingSummary();
-    renderWorkload();
     if (row.dataset.ready === 'true') {
       document.querySelector('#ready-count').innerHTML = `${Number(document.querySelector('#ready-count').textContent.match(/\d+/)[0]) + 1} <em>vehicles</em>`;
     }
@@ -262,21 +219,21 @@ queueBody.addEventListener('click', (event) => {
 
 document.querySelector('#resequence').addEventListener('click', () => {
   const rows = [...queueBody.querySelectorAll('tr')];
+  const stateRank = { pending: 0, waiting: 1, active: 2, completed: 3 };
   rows.sort((a, b) => {
-    const stateRank = { pending: 0, waiting: 1, active: 2, completed: 3 };
     const stateDifference = stateRank[a.dataset.state] - stateRank[b.dataset.state];
     if (stateDifference) return stateDifference;
-    const aOpen = Number(getDepartment(a.dataset.dept).querySelector('.open').textContent) > 0;
-    const bOpen = Number(getDepartment(b.dataset.dept).querySelector('.open').textContent) > 0;
-    if (a.dataset.state === 'waiting' && aOpen !== bOpen) return aOpen ? -1 : 1;
+    if (a.dataset.state === 'pending') {
+      const dueDifference = a.querySelector('.due-date').value.localeCompare(b.querySelector('.due-date').value);
+      if (dueDifference) return dueDifference;
+    }
     return Number(a.dataset.priority) - Number(b.dataset.priority);
   });
   rows.forEach((row, index) => {
     queueBody.append(row);
-    row.dataset.priority = index + 1;
-    row.querySelector('.priority').textContent = String(index + 1).padStart(2, '0');
+    if (row.dataset.state !== 'active') row.querySelector('.priority').textContent = String(index + 1).padStart(2, '0');
   });
-  notify('Plan refreshed using deadlines, job dependencies, and open department slots.');
+  notify('Work queue refreshed using due dates, job steps, and department capacity.');
 });
 
 const search = document.querySelector('#vehicle-search');
@@ -309,18 +266,10 @@ filterButton.addEventListener('click', () => {
 
 queueBody.addEventListener('change', (event) => {
   const row = event.target.closest('tr');
-  if (!row) return;
-  if (event.target.matches('.assignee')) {
-    renderWorkload();
-    saveWorkboard();
-    addNotification('Task assignment updated', `${row.querySelector('td:nth-child(2) b').textContent} is assigned to ${event.target.value}.`);
-    notify(`Assigned to ${event.target.value}.`);
-  }
-  if (event.target.matches('.due-date')) {
-    saveWorkboard();
-    addNotification('Due date updated', `${row.querySelector('td:nth-child(2) b').textContent} is now due ${event.target.value}.`);
-    notify('Due date saved for this demo.');
-  }
+  if (!row || !event.target.matches('.due-date')) return;
+  saveWorkboard();
+  addNotification('Due date updated', `${row.querySelector('td:nth-child(2) b').textContent} is now due ${event.target.value}.`);
+  notify('Due date saved for this demo.');
 });
 
 const notificationButton = document.querySelector('#notifications-button');
@@ -346,5 +295,4 @@ document.querySelector('#capacity-help').addEventListener('click', () => dialog.
 document.querySelector('#help-button').addEventListener('click', () => dialog.showModal());
 restoreWorkboard();
 updatePendingSummary();
-renderWorkload();
 renderNotifications();
