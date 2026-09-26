@@ -77,7 +77,7 @@ export default async function handler(req, res) {
       return sendError(res, 502, 'The AI summary could not be generated. Try again later.');
     }
     const response = await summaryResponse.json();
-    const summary = response.output?.flatMap(item => item.content || []).find(item => item.type === 'output_text')?.text?.trim();
+    const summary = String(response.output_text || response.output?.flatMap(item => item.content || []).find(item => item.type === 'output_text')?.text || '').trim();
     if (!summary) return sendError(res, 502, 'The AI returned an empty summary. Try again.');
 
     return res.status(200).json({ summary });

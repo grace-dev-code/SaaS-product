@@ -71,3 +71,18 @@ tr.record-completed:hover td{background:#e7eae7}
 
 /* Customer code copy and expandable public service history. */
 .customer-code-actions{display:flex;align-items:center;gap:8px}.copy-customer-code,.customer-history-toggle{border:1px solid #dce5dd;border-radius:5px;background:#fff;color:#607167;padding:5px 8px;font:600 9px Manrope,sans-serif;cursor:pointer}.copy-customer-code:hover,.customer-history-toggle:hover{border-color:#bd7d42;color:#8b5c2c}.customer-service-history{margin-top:12px;padding-top:10px;border-top:1px solid #e8ede8}.customer-history-entry{display:grid;grid-template-columns:94px minmax(0,1fr);gap:5px 10px;padding:7px 0}.customer-history-entry time{grid-row:span 2;color:#8d9991;font-size:8px;line-height:1.5}.customer-history-entry b{color:#4e5d53;font-size:9px;line-height:1.45}.customer-history-entry p{grid-column:2;margin:0;color:#65736a;font-size:9px;line-height:1.55}.customer-history-toggle{margin-top:5px;padding:5px 7px;background:#f7f9f6}.copy-customer-code:focus-visible,.customer-history-toggle:focus-visible{outline:2px solid #bd7d42;outline-offset:2px}@media(max-width:760px){.customer-code-actions{align-items:flex-start;flex-direction:column;gap:6px}.customer-history-entry{grid-template-columns:78px minmax(0,1fr);gap:5px 8px}}.customer-code-chip .copy-staff-customer-code{border:0;border-radius:4px;background:#e5efe7;color:#36704a;padding:4px 6px;font:600 8px Manrope,sans-serif;cursor:pointer}.customer-code-chip .copy-staff-customer-code:hover{background:#d8e9dc}.customer-code-chip .copy-staff-customer-code:focus-visible{outline:2px solid #397452;outline-offset:2px}.customer-history-heading{margin:0 0 3px;color:#849188;font-size:8px;font-weight:700;letter-spacing:.65px}
+.status:not(.completed):not(.not-started) i{background:var(--green-dark)}
+.car-thumb,.detail-photo,.customer-record-photo{position:relative}
+.photo-stale-badge{position:absolute;left:3px;bottom:3px;max-width:calc(100% - 6px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:3px;background:rgba(72,78,74,.78);color:#fff;padding:3px 5px;font-size:8px;line-height:1.15;font-weight:600}
+.customer-vehicles-link{display:block;margin-top:9px;padding:6px 0;border:0;background:none;color:#397355;text-align:left;font-size:10px;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.photo-drop-active{border-color:#397355!important;background:#eef7f0!important;box-shadow:0 0 0 3px #39735520}
+.customer-group-status{display:flex;align-items:center;justify-content:flex-start;margin:16px 0 0;padding:13px 15px;border:1px solid #dfe6df;border-radius:7px;background:#f2f5f1}
+.customer-group-status .status{font-size:16px;font-weight:800;gap:9px}
+.customer-group-status .status i{width:10px;height:10px}
+.customer-group-status--completed{border-color:#d7e6d9;background:#edf5ee}
+.customer-group-status--completed .status-label{color:#267344}
+.customer-group-status--in_progress{border-color:#f0dda9;background:#fff8e6}
+.customer-group-status--in_progress .status-label{color:#986319}
+.customer-group-status--not_started{background:#f0f2f3}
+.customer-group-status--not_started .status-label{color:#5d6f7c}
+@media(max-width:760px){#cameraBtn{display:none}.vehicle-suggestion{grid-template-columns:minmax(72px,.8fr) minmax(0,1.2fr)!important;gap:7px;padding:9px 8px;min-height:45px}.suggestion-customer{display:block!important;min-width:0;white-space:normal;overflow-wrap:anywhere;font-size:clamp(9px,2.8vw,11px);line-height:1.25}.photo-buttons{flex-wrap:wrap}.scan-hint{width:100%;margin:2px 0 0}.photo-stale-badge{font-size:6px;left:2px;bottom:2px;padding:2px 3px}.customer-group-status{margin-top:12px;padding:11px}.customer-group-status .status{font-size:14px}}
