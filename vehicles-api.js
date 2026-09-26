@@ -11,13 +11,13 @@ function requireClient() {
 
 // Shared helpers for every page that reads or updates vehicles.
 export async function listVehicles() {
-  const { data, error } = await requireClient().from('vehicles').select('*').order('created_at', { ascending: false });
+  const { data, error } = await requireClient().from('vehicles').select('*').eq('record_type', 'inventory').order('created_at', { ascending: false });
   if (error) throw error;
   return data;
 }
 
 export async function getVehicle(id) {
-  const { data, error } = await requireClient().from('vehicles').select('*').eq('id', id).single();
+  const { data, error } = await requireClient().from('vehicles').select('*').eq('record_type', 'inventory').eq('id', id).single();
   if (error) throw error;
   return data;
 }

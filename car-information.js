@@ -42,9 +42,9 @@
   }
   async function allRecords(){
     if(useLocalStorage)return readLegacyRecords();
-    const {data,error}=await supabase.from('service_records').select('id,plate,customer_code,record_data,created_by').order('created_at',{ascending:false});
+    const {data,error}=await supabase.from('vehicles').select('service_record_id,registration_plate,customer_code,service_record_data,created_by').eq('record_type','service').order('created_at',{ascending:false});
     if(error)throw error;
-    return(data||[]).map(row=>({...row.record_data,id:row.id,plate:row.plate,customerCode:row.customer_code,createdBy:row.created_by}));
+    return(data||[]).map(row=>({...row.service_record_data,id:row.service_record_id,plate:row.registration_plate,customerCode:row.customer_code,createdBy:row.created_by}));
   }
   async function saveRecord(record){
     if(useLocalStorage){
@@ -56,7 +56,7 @@
     if(sessionError)throw sessionError;
     if(!session?.user)throw new Error('Sign in to save service records to the shared workspace.');
     const recordData={...record};delete recordData.createdBy;delete recordData.showAllEvents;
-    const {error}=await supabase.from('service_records').upsert({id:record.id,plate:record.plate,customer_code:record.customerCode,record_data:recordData,created_by:record.createdBy||session.user.id},{onConflict:'id'});
+    const {error}=await supabase.from('vehicles').upsert({record_type:'service',service_record_id:record.id,registration_plate:record.plate,customer_code:record.customerCode,service_record_data:recordData,created_by:record.createdBy||session.user.id},{onConflict:'service_record_id'});
     if(error)throw error;
     record.createdBy||=session.user.id;
   }
@@ -194,7 +194,7 @@
       for(const item of legacy){const record=normalizeRecord(item);record.customerCode||=newCustomerCode();await saveRecord(record);}
       if(legacy.length)toast('Existing local service records moved to the shared database.');
       await reload();
-      supabase.channel('service-records-updates').on('postgres_changes',{event:'*',schema:'public',table:'service_records'},()=>reload().catch(error=>console.error(error))).subscribe();
+      supabase.channel('vehicle-service-updates').on('postgres_changes',{event:'*',schema:'public',table:'vehicles',filter:'record_type=eq.service'},()=>reload().catch(error=>console.error(error))).subscribe();
     }catch(error){console.error(error);toast(error.message||'Could not connect to the shared service records database.');}
   }
   init();

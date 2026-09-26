@@ -1,28 +1,18 @@
-# Shared service records database
+# Shared vehicle and service database
 
-`car-information.html` now uses the existing Supabase project configured in `supabase-config.js`.
-Staff need to sign in through the existing `login.html` flow. Service records are stored in a
-dedicated `public.service_records` table in the same project; the vehicle inventory `vehicles`
-table stays unchanged because it requires a VIN and has a different data shape.
+The staff vehicle inventory and workshop service records now use the same `public.vehicles`
+table. Inventory rows use `record_type = 'inventory'`; service rows use `record_type = 'service'`
+and keep their workflow payload in `service_record_data`. The service UI stores the registration
+plate, customer code, contact details, service items and timeline together on that vehicle row.
 
-## Apply the schema
+## Database migration
 
-In the Supabase SQL Editor, run
-[`202609260002_create_service_records.sql`](supabase/migrations/202609260002_create_service_records.sql).
-It creates the service-record table, authenticated staff policies, a timestamp trigger, and the
-customer-code lookup function. The customer lookup function returns the record without phone and
-email fields. It does not grant anonymous access to the underlying table.
+Run [`202609260003_store_service_records_in_vehicles.sql`](supabase/migrations/202609260003_store_service_records_in_vehicles.sql)
+in the Supabase SQL Editor. It extends the existing table, moves current service rows from the
+legacy `service_records` table into `vehicles`, and redirects the customer-code lookup function
+to `vehicles`. The old table is retained as a rollback/audit copy; the app no longer reads or
+writes to it.
 
-After the migration is applied and the Vercel deployment includes the updated files:
-
-- Staff records load from and save to Supabase. Changes from other signed-in staff refresh through
-  Supabase Realtime.
-- The customer page looks up service records by customer code through the restricted SQL function.
-- Non-sample records from the old browser IndexedDB that are not already in Supabase are copied on
-  the first signed-in load. Sample/demo rows are skipped. The app then reads and writes service
-  records through Supabase.
-- Vehicle photos are resized and compressed before being stored in the JSON record.
-
-The existing browser-safe publishable key in `supabase-config.js` is used. Do not place a
-`service_role` or secret key in browser code.
-
+Staff sign in through `login.html`. Customers use the restricted
+`get_customer_service_records` function, which omits phone, email and staff creator fields. Local
+`file://` or localhost previews use IndexedDB and four demo records; hosted pages use Supabase.
