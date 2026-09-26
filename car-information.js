@@ -1,5 +1,3 @@
-import { getCustomerServiceRecords, listServiceRecords, saveServiceRecord, supabase, supabaseConfigured } from './vehicles-api.js';
-
 (() => {
   // Optional AI vision endpoint. Keep this namespaced module self-contained when integrating.
   // Configure window.FIELDNOTE_AI_ENDPOINT before this script. Use an authenticated backend proxy,
@@ -8,6 +6,14 @@ import { getCustomerServiceRecords, listServiceRecords, saveServiceRecord, supab
   const AI_ANALYSIS_ENDPOINT = window.FIELDNOTE_AI_ENDPOINT || '';
   const DB_NAME = 'fieldnote_vehicle_records';
   const STORE = 'vehicles';
+  // Keep these browser-safe project values in sync with supabase-config.js. Local file previews
+  // deliberately use IndexedDB so the complete interface works without a server or sign-in.
+  const SUPABASE_URL = 'https://udkwrdbrvfhmyewomcsx.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_oE_u-bKil_B8jjVb2r-lCw_u2Nq-uks';
+  const isLocalPreview = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const supabaseConfigured = !!(window.supabase?.createClient && SUPABASE_URL && SUPABASE_ANON_KEY);
+  const supabase = supabaseConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+  let useLocalStorage = isLocalPreview || !supabase;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const nowISO = () => new Date().toISOString();
@@ -23,7 +29,7 @@ import { getCustomerServiceRecords, listServiceRecords, saveServiceRecord, supab
   function openLegacyDb() {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, 1);
-      request.onupgradeneeded = () => request.result.createObjectStore(STORE, {keyPath:'id'});
+      request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains(STORE)) request.result.createObjectStore(STORE, {keyPath:'id'}); };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -34,15 +40,33 @@ import { getCustomerServiceRecords, listServiceRecords, saveServiceRecord, supab
       request.onsuccess=()=>resolve(request.result); request.onerror=()=>reject(request.error);
     });
   }
-  const allRecords=()=>listServiceRecords();
-  const saveRecord=record=>saveServiceRecord(record);
+  async function allRecords(){
+    if(useLocalStorage)return readLegacyRecords();
+    const {data,error}=await supabase.from('service_records').select('id,plate,customer_code,record_data,created_by').order('created_at',{ascending:false});
+    if(error)throw error;
+    return(data||[]).map(row=>({...row.record_data,id:row.id,plate:row.plate,customerCode:row.customer_code,createdBy:row.created_by}));
+  }
+  async function saveRecord(record){
+    if(useLocalStorage){
+      const database=await openLegacyDb();
+      try{await legacyDbRequest(database,'readwrite',store=>store.put(record));}finally{database.close();}
+      return;
+    }
+    const {data:{session},error:sessionError}=await supabase.auth.getSession();
+    if(sessionError)throw sessionError;
+    if(!session?.user)throw new Error('Sign in to save service records to the shared workspace.');
+    const recordData={...record};delete recordData.createdBy;delete recordData.showAllEvents;
+    const {error}=await supabase.from('service_records').upsert({id:record.id,plate:record.plate,customer_code:record.customerCode,record_data:recordData,created_by:record.createdBy||session.user.id},{onConflict:'id'});
+    if(error)throw error;
+    record.createdBy||=session.user.id;
+  }
   async function readLegacyRecords(){const database=await openLegacyDb();try{return await legacyDbRequest(database,'readonly',store=>store.getAll());}finally{database.close();}}
   const ago=minutes=>new Date(Date.now()-minutes*60000).toISOString();
   const seedRecords=()=>[
-    {id:'sample-1',plate:'KPH482',vehicle:'Toyota RAV4 · 2021',customer:'Mia Chen',phone:'021 445 830',service:'Repair',status:'in_progress',estimate:'About 1 hr 20 min',request:'A noise when starting. Please inspect the brakes and belt first. Call before any work over the $600 budget.',photo:'',createdAt:ago(143),events:[{at:ago(18),title:'Brake and belt inspection in progress',note:'Technician noted light belt wear; inspection continues.'},{at:ago(143),title:'Service record created',note:'Vehicle checked in and customer request recorded.'}]},
-    {id:'sample-2',plate:'LQW731',vehicle:'Honda Fit · 2019',customer:'James Wilson',phone:'022 809 144',service:'Wash',status:'pending',estimate:'About 35 min',request:'Interior and exterior clean. Please pay extra attention to pet hair in the boot.',photo:'',createdAt:ago(68),events:[{at:ago(68),title:'Service record created',note:'Vehicle checked in and is waiting to be assigned.'}]},
-    {id:'sample-3',plate:'NZT205',vehicle:'Mazda CX-5 · 2022',customer:'Sarah Lee',phone:'027 551 097',service:'Repair',status:'done',estimate:'Completed',request:'Routine service, oil and filter change.',photo:'',createdAt:ago(290),events:[{at:ago(72),title:'Service completed',note:'Oil and filter changed; road test complete.'},{at:ago(260),title:'Work started',note:'Technician began the routine service.'},{at:ago(290),title:'Service record created',note:'Customer approved the listed service.'}]},
-    {id:'sample-4',plate:'JRM619',vehicle:'Subaru Outback · 2020',customer:'Oliver Park',phone:'021 901 662',service:'Rental',status:'in_progress',estimate:'Ready for pickup at 4:30 PM',request:'Vehicle is prepared for pickup. Confirm fuel level and note the existing scratch on the right rear door at handover.',photo:'',createdAt:ago(350),events:[{at:ago(33),title:'Vehicle preparation complete',note:'Fuel 7/8; existing right rear door scratch recorded.'},{at:ago(350),title:'Service record created',note:'Rental record created.'}]}
+    {id:'sample-1',plate:'KPH482',vehicle:'Toyota RAV4 · 2021',customer:'Mia Chen',phone:'021 445 830',customerCode:'FN-DEMO-482',service:'Repair',status:'in_progress',estimate:'About 1 hr 20 min',request:'A noise when starting. Please inspect the brakes and belt first. Call before any work over the $600 budget.',photo:'',createdAt:ago(143),events:[{at:ago(18),title:'Brake and belt inspection in progress',note:'Technician noted light belt wear; inspection continues.'},{at:ago(143),title:'Service record created',note:'Vehicle checked in and customer request recorded.'}]},
+    {id:'sample-2',plate:'LQW731',vehicle:'Honda Fit · 2019',customer:'James Wilson',phone:'022 809 144',customerCode:'FN-DEMO-731',service:'Wash',status:'pending',estimate:'About 35 min',request:'Interior and exterior clean. Please pay extra attention to pet hair in the boot.',photo:'',createdAt:ago(68),events:[{at:ago(68),title:'Service record created',note:'Vehicle checked in and is waiting to be assigned.'}]},
+    {id:'sample-3',plate:'NZT205',vehicle:'Mazda CX-5 · 2022',customer:'Sarah Lee',phone:'027 551 097',customerCode:'FN-DEMO-205',service:'Repair',status:'done',estimate:'Completed',request:'Routine service, oil and filter change.',photo:'',createdAt:ago(290),events:[{at:ago(72),title:'Service completed',note:'Oil and filter changed; road test complete.'},{at:ago(260),title:'Work started',note:'Technician began the routine service.'},{at:ago(290),title:'Service record created',note:'Customer approved the listed service.'}]},
+    {id:'sample-4',plate:'JRM619',vehicle:'Subaru Outback · 2020',customer:'Oliver Park',phone:'021 901 662',customerCode:'FN-DEMO-619',service:'Rental',status:'in_progress',estimate:'Ready for pickup at 4:30 PM',request:'Vehicle is prepared for pickup. Confirm fuel level and note the existing scratch on the right rear door at handover.',photo:'',createdAt:ago(350),events:[{at:ago(33),title:'Vehicle preparation complete',note:'Fuel 7/8; existing right rear door scratch recorded.'},{at:ago(350),title:'Service record created',note:'Rental record created.'}]}
   ];
   const dateLabel=value=>new Intl.DateTimeFormat('en-NZ',{month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(value));
   const itemStatusLabel=status=>status==='completed'?'Completed':status==='in_progress'?'In progress':'Not started';
@@ -137,7 +161,7 @@ import { getCustomerServiceRecords, listServiceRecords, saveServiceRecord, supab
   async function reload(){records=(await allRecords()).map(normalizeRecord);for(const record of records){if(!record.customerCode){record.customerCode=record.customer?await getOrCreateCustomerCode(record.customer,record.phone||'',record.email||''):newCustomerCode();await saveRecord(record);}}render();if(customerView&&activeCustomerCode)renderCustomerRecords(activeCustomerCode);}
   function exportData(){const blob=new Blob([JSON.stringify({exportedAt:nowISO(),vehicles:records},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`fieldnote-service-records-${new Date().toISOString().slice(0,10)}.json`;link.click();URL.revokeObjectURL(url);toast('Backup downloaded');}
   function initEvents(){
-    $('#addCarBtn').addEventListener('click',openIntake);$('#emptyAddBtn').addEventListener('click',openIntake);$('#intakeForm').addEventListener('submit',event=>{try{createRecord(event).catch(error=>toast(error.message||'Could not save service record'));}catch(error){toast(error.message);}});$('#statusForm').addEventListener('submit',saveStatusChange);$('#extraServiceForm').addEventListener('submit',event=>saveExtraService(event).catch(error=>toast(error.message||'Could not add service')));$('#extraServiceType').addEventListener('change',updateExtraServiceDefaults);$('#viewMergedRecordBtn').addEventListener('click',()=>{closeOverlay('mergeNoticeOverlay');if(mergedRecordId)openDetail(mergedRecordId);});$('#customerCodeForm').addEventListener('submit',async event=>{event.preventDefault();activeCustomerCode=$('#customerCodeInput').value.trim().toUpperCase();if(!supabaseConfigured){$('#customerCodeMessage').textContent='The shared database is not configured yet.';return;}$('#customerCodeMessage').textContent='Loading your vehicles…';try{records=(await getCustomerServiceRecords(activeCustomerCode)).map(normalizeRecord);renderCustomerRecords(activeCustomerCode);}catch(error){console.error(error);$('#customerCodeMessage').textContent='Customer lookup is not available. The service records database migration may need to be applied.';}});$('#searchInput').addEventListener('input',render);
+    $('#addCarBtn').addEventListener('click',openIntake);$('#emptyAddBtn').addEventListener('click',openIntake);$('#intakeForm').addEventListener('submit',event=>{try{createRecord(event).catch(error=>toast(error.message||'Could not save service record'));}catch(error){toast(error.message);}});$('#statusForm').addEventListener('submit',saveStatusChange);$('#extraServiceForm').addEventListener('submit',event=>saveExtraService(event).catch(error=>toast(error.message||'Could not add service')));$('#extraServiceType').addEventListener('change',updateExtraServiceDefaults);$('#viewMergedRecordBtn').addEventListener('click',()=>{closeOverlay('mergeNoticeOverlay');if(mergedRecordId)openDetail(mergedRecordId);});$('#customerCodeForm').addEventListener('submit',async event=>{event.preventDefault();activeCustomerCode=$('#customerCodeInput').value.trim().toUpperCase();$('#customerCodeMessage').textContent='Loading your vehicles…';try{if(useLocalStorage)records=(await allRecords()).map(normalizeRecord);else{const {data,error}=await supabase.rpc('get_customer_service_records',{p_customer_code:activeCustomerCode});if(error)throw error;records=(data||[]).map(normalizeRecord);}renderCustomerRecords(activeCustomerCode);}catch(error){console.error(error);$('#customerCodeMessage').textContent='Customer lookup is not available. Check the customer code and database connection.';}});$('#searchInput').addEventListener('input',render);
     $('#filters').addEventListener('click',event=>{const button=event.target.closest('[data-filter]');if(!button)return;activeFilter=button.dataset.filter;$$('.filter').forEach(el=>el.classList.toggle('active',el===button));render();});
     $('#vehicleRows').addEventListener('click',event=>{const row=event.target.closest('tr[data-id]');if(row)openDetail(row.dataset.id);});$('#exportBtn').addEventListener('click',exportData);$('#backupBtn').addEventListener('click',exportData);
     $$('[data-close]').forEach(button=>button.addEventListener('click',()=>closeOverlay(button.dataset.close)));$$('.overlay').forEach(overlay=>overlay.addEventListener('click',event=>{if(event.target===overlay)closeOverlay(overlay.id);}));
@@ -150,7 +174,16 @@ import { getCustomerServiceRecords, listServiceRecords, saveServiceRecord, supab
   }
   async function init(){
     activateViewMode();initEvents();
-    if(!supabaseConfigured){toast('Supabase is not configured. Check supabase-config.js.');return;}
+    $('.storage-state').innerHTML=`<i></i> ${useLocalStorage?'Local test workspace · changes stay in this browser':'Shared Supabase workspace'}`;
+    if(useLocalStorage){
+      try{
+        const saved=await readLegacyRecords(),savedIds=new Set(saved.map(record=>record.id));
+        for(const sample of seedRecords())if(!savedIds.has(sample.id))await saveRecord(sample);
+        await reload();
+        if(customerView)$('#customerCodeMessage').textContent='Try a demo code: FN-DEMO-482, FN-DEMO-731, FN-DEMO-205, or FN-DEMO-619.';
+      }catch(error){console.error(error);toast(error.message||'Could not open the local test workspace.');}
+      return;
+    }
     if(customerView)return;
     try{
       const {data:{session},error:authError}=await supabase.auth.getSession();
