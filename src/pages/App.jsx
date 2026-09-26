@@ -9,6 +9,13 @@ const steps = [
 ];
 const statusLabels = Object.fromEntries(steps.map(({ id, label }) => [id, label]));
 
+function BrandMark() {
+  return <svg className="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+    <circle className="brand-mark-ring" cx="13.5" cy="13.5" r="9.5" />
+    <path className="brand-mark-accent" d="m20.5 20.5 5 5" />
+  </svg>;
+}
+
 function formatDate(value) {
   if (!value) return null;
   return new Intl.DateTimeFormat('en-NZ', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
@@ -43,7 +50,7 @@ export default function App() {
 
   return <div className="site-shell">
     <header className="topbar">
-      <a className="brand" href="/" aria-label="FlowDrive home"><span className="brand-mark">f</span> flowdrive</a>
+      <a className="brand" href="/" aria-label="FlowDrive home"><BrandMark /> flowdrive</a>
       <a className="mechanic-link" href="/login.html">Mechanic sign in <span aria-hidden="true">↗</span></a>
     </header>
 
@@ -85,6 +92,6 @@ export default function App() {
       </section>}
     </main>
 
-    <footer><a className="brand footer-brand" href="/"><span className="brand-mark">f</span> flowdrive</a><span>Updates are shared by your service team.</span><a href="/login.html">Employee access <span aria-hidden="true">→</span></a></footer>
+    <footer><a className="brand footer-brand" href="/"><BrandMark /> flowdrive</a><span>Updates are shared by your service team.</span><a href="/login.html">Employee access <span aria-hidden="true">→</span></a></footer>
   </div>;
 }
