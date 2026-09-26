@@ -2,74 +2,89 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FlowDrive — Smarter vehicle readiness</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f2ea" />
+    <meta name="description" content="FlowDrive keeps vehicle service teams and customers up to date, from check-in through pickup." />
+    <title>FlowDrive | Vehicle service, made clear</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Marcellus&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="announcement"><span>●</span> The modern operating system for vehicle reconditioning <a href="#workflow">See how it works →</a></div>
-    <nav>
-      <a class="brand" href="#"><i></i> flowdrive</a>
-      <div class="nav-links"><a href="#workflow">Platform</a><a href="#capacity">Capacity planning</a><a href="car-information.html">Service records</a><a href="vehicles.html">Vehicle intake</a><a href="#departments">Departments</a><a href="#results">Results</a></div>
-      <div class="nav-actions"><a class="customer-nav-button" href="car-information.html?view=customer">Customer Portal <b>→</b></a><a class="nav-button" href="login.html">Mechanic Sign In <b>→</b></a></div>
-    </nav>
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="index.html" aria-label="FlowDrive home">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="13.5" cy="13.5" r="9.5" /><path d="m20.5 20.5 5 5" /></svg>
+          <span>flowdrive</span>
+        </a>
+        <nav class="top-actions" aria-label="Main navigation">
+          <a class="customer-link" href="car-information.html?view=customer">Customer status <span aria-hidden="true">↗</span></a>
+          <a class="employee-link" href="login.html">Employee sign in <span aria-hidden="true">↗</span></a>
+        </nav>
+      </header>
 
-    <main>
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">VEHICLE READINESS, REIMAGINED</p>
-          <h1>Every car.<br /><em>Ready on time.</em></h1>
-          <p class="lede">FlowDrive brings your service lane, body shop, detail and sales teams into one intelligent vehicle workflow.</p>
-          <div class="hero-actions"><a class="primary-button" href="dashboard.html">Explore the product <span>→</span></a><a class="play" href="#workflow"><b>▶</b> Watch overview</a></div>
-          <div class="trusted"><span>TRUSTED BY FORWARD-THINKING DEALERSHIPS</span><div class="logos"><b>northstar</b><b>VANTAGE</b><b>motormark</b></div></div>
-        </div>
-        <div class="hero-visual">
-          <div class="glow"></div>
-          <div class="phone">
-            <div class="phone-top"><span>9:41</span><span>•••</span></div>
-            <div class="app-head"><div><small>Good morning, Alex</small><strong>Vehicle queue</strong></div><span class="avatar">AM</span></div>
-            <div class="vehicle-card"><div class="car-photo"><span>2024</span><div class="car-art"><div></div></div></div><div class="vehicle-info"><strong>BMW X5 xDrive40i</strong><small>VIN ending 8803 · Stock #28176</small><div><span class="chip warning">In reconditioning</span><span>67% complete</span></div></div></div>
-            <div class="progress-title"><b>Readiness progress</b><span>4 of 6 complete</span></div>
-            <div class="progress"><i></i></div>
-            <div class="tasks"><div class="task done"><span>✓</span><p><b>Initial inspection</b><small>Service · Completed today</small></p><time>9:25 AM</time></div><div class="task active"><span>◌</span><p><b>Exterior repair</b><small>Body shop · In progress</small></p><time>Due Fri</time></div><div class="task"><span>○</span><p><b>Detail &amp; photography</b><small>Cosmetics · Up next</small></p><time>—</time></div></div>
+      <main>
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="live-dot"></span>ONE CLEAR SERVICE JOURNEY</p>
+            <h1 id="hero-title">Vehicle service,<br /><em>made clear.</em></h1>
+            <p class="hero-lede">FlowDrive connects the people looking after a vehicle with the people waiting for it. Teams keep service progress up to date; customers can see what’s happening and what comes next.</p>
+            <div class="hero-actions">
+              <a class="primary-button" href="car-information.html?view=customer">Check your vehicle status <span aria-hidden="true">→</span></a>
+              <a class="secondary-link" href="login.html">I’m an employee <span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="hero-note"><span class="note-mark">⌑</span><span>Customers need the access code from their service team.</span></div>
           </div>
-          <div class="float-card ai-card"><span class="spark">✦</span><div><small>AI assessment</small><b>3 items detected</b></div><i>›</i></div>
-          <div class="float-card eta-card"><span>↗</span><div><small>Estimated ready</small><b>Friday, 2:30 PM</b></div></div>
-        </div>
-      </section>
 
-      <section class="capacity" id="capacity">
-        <div class="capacity-intro"><p class="eyebrow">A CLEAR PLAN FOR EVERY SHIFT</p><h2>Keep work moving<br /><em>at a pace teams can handle.</em></h2><p>FlowDrive sequences vehicle work around each department’s real capacity, so teams know what to do next without getting overloaded.</p><a href="dashboard.html" class="text-link">Try the interactive workboard <span>→</span></a></div>
-        <div class="ops-panel">
-          <div class="ops-top"><div><span class="live-dot"></span><b>Today’s work plan</b><small>Updated just now · 9 vehicles in progress</small></div><span class="shift-label">DAY SHIFT</span></div>
-          <div class="capacity-grid">
-            <article class="capacity-card"><div class="capacity-label"><span class="dept-symbol wash">✦</span><div><b>Wash &amp; detail</b><small>3 of 5 work slots</small></div><strong>60%</strong></div><div class="capacity-track"><i style="width:60%"></i></div></article>
-            <article class="capacity-card"><div class="capacity-label"><span class="dept-symbol repair">⌁</span><div><b>Service &amp; repair</b><small>4 of 4 work slots</small></div><strong class="full">FULL</strong></div><div class="capacity-track"><i class="at-capacity" style="width:100%"></i></div></article>
-            <article class="capacity-card"><div class="capacity-label"><span class="dept-symbol inspect">✓</span><div><b>Inspection</b><small>1 of 3 work slots</small></div><strong>33%</strong></div><div class="capacity-track"><i class="light-load" style="width:33%"></i></div></article>
+          <aside class="journey-card" aria-label="Example vehicle service progress">
+            <div class="journey-card-head"><div><p class="eyebrow">A SHARED VIEW</p><h2>From check-in to pickup</h2></div><span class="journey-icon" aria-hidden="true">⌁</span></div>
+            <p class="journey-intro">Each update helps the team stay aligned and keeps the customer informed.</p>
+            <ol class="journey-list">
+              <li class="complete"><span class="journey-marker">✓</span><div><b>Vehicle checked in</b><small>The service team records the vehicle and request.</small></div><span class="journey-state">DONE</span></li>
+              <li class="current"><span class="journey-marker">02</span><div><b>Inspection and service</b><small>Progress is updated as work moves forward.</small></div><span class="journey-state">IN PROGRESS</span></li>
+              <li><span class="journey-marker">03</span><div><b>Ready for pickup</b><small>The customer can check the latest status.</small></div><span class="journey-state">UP NEXT</span></li>
+            </ol>
+            <div class="journey-card-foot"><span><i></i> Updates shared by your service team</span><span>FLOWDRIVE</span></div>
+          </aside>
+        </section>
+
+        <section class="how-it-works" id="how-it-works" aria-labelledby="how-title">
+          <div class="section-heading">
+            <p class="eyebrow">TWO SIDES, ONE SERVICE RECORD</p>
+            <h2 id="how-title">Everyone knows<br /><em>where things stand.</em></h2>
+            <p>FlowDrive gives employees a place to manage service progress and gives customers a simple way to follow along.</p>
           </div>
-          <div class="queue-heading"><div><b>Recommended next</b><small>Sorted by urgency and available capacity</small></div><span>3 VEHICLES</span></div>
-          <article class="queue-item"><span class="queue-rank">01</span><div class="queue-car"><b>2023 Toyota RAV4</b><small>Stock #4182 · Rental return</small></div><span class="queue-task wash-tag">Wash · 35 min</span><span class="queue-reason">Rental due 2:00 PM</span><button class="why-button" aria-expanded="false">Why?</button><p class="reason-detail" hidden>Scheduled first because it has a same-day rental booking and the wash team has two open slots.</p></article>
-          <article class="queue-item"><span class="queue-rank">02</span><div class="queue-car"><b>2022 Honda CR-V</b><small>Stock #4206 · Used inventory</small></div><span class="queue-task inspect-tag">Inspection · 25 min</span><span class="queue-reason">Ready for sale</span><button class="why-button" aria-expanded="false">Why?</button><p class="reason-detail" hidden>Inspection has two open slots. Completing it clears the final check before the vehicle goes to the sales lot.</p></article>
-          <article class="queue-item deferred"><span class="queue-rank">↗</span><div class="queue-car"><b>2021 Ford Explorer</b><small>Stock #4159 · Used inventory</small></div><span class="queue-task repair-tag">Repair · 2 hrs</span><span class="queue-reason">Queued for next slot</span><button class="why-button" aria-expanded="false">Why?</button><p class="reason-detail" hidden>Service is at capacity. The system holds this job in sequence and alerts the team when a slot opens.</p></article>
-          <div class="ops-foot"><span>Suggestions respect team capacity and vehicle deadlines.</span><span class="plan-status">● Plan balanced</span></div>
-        </div>
-      </section>
+          <div class="audience-grid">
+            <article class="audience-card employee-card">
+              <span class="audience-number">01 / EMPLOYEES</span>
+              <span class="audience-icon" aria-hidden="true">⌁</span>
+              <h3>Keep the work moving.</h3>
+              <p>Sign in to manage vehicle records, capture inspection details, and update service progress for your team.</p>
+              <a href="login.html">Go to employee sign in <span aria-hidden="true">→</span></a>
+            </article>
+            <article class="audience-card customer-card">
+              <span class="audience-number">02 / CUSTOMERS</span>
+              <span class="audience-icon" aria-hidden="true">↗</span>
+              <h3>Stay in the loop.</h3>
+              <p>Enter the private access code from your service team to see your vehicle’s latest status and updates.</p>
+              <a href="car-information.html?view=customer">Check customer status <span aria-hidden="true">→</span></a>
+            </article>
+          </div>
+        </section>
 
-      <section class="metrics" id="results"><div><strong>32%</strong><span>faster time<br />to frontline</span></div><div><strong>4.8<span>hrs</span></strong><span>saved per<br />vehicle</span></div><div><strong>98%</strong><span>on-time<br />completion</span></div><div><strong>1</strong><span>connected<br />workspace</span></div></section>
+        <section class="closing-note" aria-label="FlowDrive service updates">
+          <span class="closing-mark" aria-hidden="true">✓</span>
+          <div><p class="eyebrow">CLEAR UPDATES, ALL THE WAY THROUGH</p><h2>One service journey.<br /><em>Less wondering.</em></h2></div>
+          <a class="closing-link" href="car-information.html?view=customer">View customer status <span aria-hidden="true">→</span></a>
+        </section>
+      </main>
 
-      <section class="workflow" id="workflow">
-        <div class="section-intro"><p class="eyebrow">ONE CLEAR PATH TO READY</p><h2>From arrival to<br /><em>frontline, in flow.</em></h2><p>Give every vehicle a visible, accountable journey. FlowDrive knows what needs to happen, who owns it and when it will be done.</p></div>
-        <div class="flow-grid"><article class="flow-card dark"><span class="step">01</span><span class="icon">⌁</span><h3>Capture every detail</h3><p>Upload photos, condition notes and vehicle information from anywhere on the lot.</p><div class="mini-capture"><div class="thumb">⌁</div><div><b>Walkaround complete</b><small>24 photos · 2 notes</small></div><span>✓</span></div></article><article class="flow-card"><span class="step">02</span><span class="icon purple">✦</span><h3>Let AI map the work</h3><p>AI identifies condition issues and automatically builds the right reconditioning plan.</p><div class="scan-lines"><i></i><i></i><i></i><span>AI analysis complete</span></div></article><article class="flow-card cream"><span class="step">03</span><span class="icon orange">↗</span><h3>Keep every team moving</h3><p>Smart routing assigns tasks to the right department with clear due dates.</p><div class="mini-team"><span class="purple-dot"></span><div><b>Body Shop</b><small>2 tasks assigned</small></div><em>Today</em></div><div class="mini-team"><span class="orange-dot"></span><div><b>Detailing</b><small>Next in queue</small></div><em>Tomorrow</em></div></article></div>
-      </section>
-
-      <section class="departments" id="departments"><div class="dept-heading"><p class="eyebrow">BUILT FOR THE WHOLE DEALERSHIP</p><h2>One vehicle story.<br /><em>Every department aligned.</em></h2></div><div class="dept-list"><div><span class="dept-icon purple">⌁</span><p><b>Service</b><small>Inspection, diagnostics &amp; mechanical repair</small></p><span class="dept-arrow">↗</span></div><div><span class="dept-icon orange">◒</span><p><b>Body Shop</b><small>Damage assessment, repair &amp; paint</small></p><span class="dept-arrow">↗</span></div><div><span class="dept-icon green">✦</span><p><b>Detail &amp; Cosmetics</b><small>Reconditioning, photos &amp; presentation</small></p><span class="dept-arrow">↗</span></div><div><span class="dept-icon blue">□</span><p><b>Sales</b><small>Frontline visibility and delivery readiness</small></p><span class="dept-arrow">↗</span></div></div></section>
-
-      <section class="cta" id="demo"><div class="cta-orb one"></div><div class="cta-orb two"></div><p class="eyebrow">READY TO RUN A TIGHTER LANE?</p><h2>Your lot is waiting.<br /><em>Let's get moving.</em></h2><a class="primary-button light" href="mailto:hello@flowdrive.com">Book your demo <span>→</span></a><small>No credit card. No complicated setup. Just clearer workflows.</small></section>
-    </main>
-    <footer><a class="brand" href="#"><i></i> flowdrive</a><span>© 2024 FlowDrive. Built for the road ahead.</span><div><a href="#">Privacy</a><a href="#">Terms</a><a href="#">LinkedIn</a></div></footer>
-    <script src="app.js"></script>
+      <footer class="site-footer">
+        <a class="brand footer-brand" href="index.html"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="13.5" cy="13.5" r="9.5" /><path d="m20.5 20.5 5 5" /></svg><span>flowdrive</span></a>
+        <span>Vehicle service updates, shared by your team.</span>
+        <a href="login.html">Employee sign in <span aria-hidden="true">↗</span></a>
+      </footer>
+    </div>
   </body>
 </html>
