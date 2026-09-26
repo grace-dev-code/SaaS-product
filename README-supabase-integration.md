@@ -9,9 +9,11 @@ table stays unchanged because it requires a VIN and has a different data shape.
 
 In the Supabase SQL Editor, run
 [`202609260002_create_service_records.sql`](supabase/migrations/202609260002_create_service_records.sql).
-It creates the service-record table, authenticated staff policies, a timestamp trigger, and the
-customer-code lookup function. The customer lookup function returns the record without phone and
-email fields. It does not grant anonymous access to the underlying table.
+Then run [`202609260003_align_records_and_archive.sql`](supabase/migrations/202609260003_align_records_and_archive.sql).
+It backfills existing JSON records into the customer-facing fields, corrects the customer-code
+lookup result, creates the `deleted` archive table, and installs the atomic archive function used
+when staff delete a service record. The customer lookup returns service progress and history without
+phone or email fields and does not grant anonymous access to the underlying table.
 
 After the migration is applied and the Vercel deployment includes the updated files:
 

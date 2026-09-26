@@ -38,16 +38,30 @@ export async function updateVehicle(id, changes) {
 export async function listServiceRecords() {
   const { data, error } = await requireClient()
     .from('service_records')
-    .select('id,plate,customer_code,record_data,created_by')
+    .select('*')
     .order('created_at', { ascending: false });
   if (error) throw error;
-  return (data || []).map((row) => ({
-    ...row.record_data,
-    id: row.id,
-    plate: row.plate,
-    customerCode: row.customer_code,
-    createdBy: row.created_by,
-  }));
+  return (data || []).map((row) => {
+    const legacy = row.record_data || {};
+    return {
+      ...legacy,
+      id: row.id,
+      plate: row.plate,
+      customerCode: row.customer_code,
+      createdBy: row.created_by,
+      vehicle: row.vehicle ?? legacy.vehicle,
+      customer: row.customer_name ?? legacy.customer,
+      phone: row.customer_phone ?? legacy.phone,
+      email: row.customer_email ?? legacy.email,
+      request: row.request ?? legacy.request,
+      summaryTitle: row.summary_title ?? legacy.summaryTitle,
+      photo: row.photo ?? legacy.photo,
+      services: Array.isArray(row.services) && row.services.length ? row.services : (legacy.services || []),
+      status: row.status ?? legacy.status,
+      createdAt: row.created_at ?? legacy.createdAt,
+      updatedAt: row.updated_at ?? legacy.updatedAt,
+    };
+  });
 }
 
 export async function saveServiceRecord(record) {
@@ -64,6 +78,17 @@ export async function saveServiceRecord(record) {
     plate: record.plate,
     customer_code: record.customerCode,
     record_data: recordData,
+    vehicle: record.vehicle || null,
+    customer_name: record.customer || null,
+    customer_phone: record.phone || null,
+    customer_email: record.email || null,
+    request: record.request || null,
+    summary_title: record.summaryTitle || null,
+    photo: record.photo || null,
+    services: record.services || [],
+    status: record.services?.length ? (record.services.every((item) => item.status === 'completed') ? 'completed' : record.services.some((item) => item.status === 'in_progress' || item.status === 'completed') ? 'in_progress' : 'not_started') : (record.status || 'not_started'),
+    created_at: record.createdAt || new Date().toISOString(),
+    updated_at: record.updatedAt || new Date().toISOString(),
     created_by: record.createdBy || session.user.id,
   }, { onConflict: 'id' });
   if (error) throw error;

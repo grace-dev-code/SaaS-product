@@ -19,8 +19,8 @@
 
   function openDb() {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, 1);
-      request.onupgradeneeded = () => request.result.createObjectStore(STORE, {keyPath:'id'});
+      const request = indexedDB.open(DB_NAME, 2);
+      request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains(STORE)) request.result.createObjectStore(STORE, {keyPath:'id'}); if (!request.result.objectStoreNames.contains('deleted')) request.result.createObjectStore('deleted', {keyPath:'id'}); };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
