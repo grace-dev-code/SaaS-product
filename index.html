@@ -13,9 +13,9 @@
     <div class="announcement"><span>●</span> The modern operating system for vehicle reconditioning <a href="#workflow">See how it works →</a></div>
     <nav>
       <a class="brand" href="#"><i></i> flowdrive</a>
-      <div class="nav-links"><a href="#workflow">Platform</a><a href="#departments">Departments</a><a href="#results">Results</a></div>
-      <a class="nav-button" href="vehicles.html">Mechanic Sign In <b>→</b></a>
-      </nav>
+      <div class="nav-links"><a href="#workflow">Platform</a><a href="#capacity">Capacity planning</a><a href="service-records.html">Service records</a><a href="vehicles.html">Vehicle intake</a><a href="#departments">Departments</a><a href="#results">Results</a></div>
+      <a class="nav-button" href="login.html">Mechanic Sign In <b>→</b></a>
+    </nav>
 
     <main>
       <section class="hero">
@@ -23,7 +23,7 @@
           <p class="eyebrow">VEHICLE READINESS, REIMAGINED</p>
           <h1>Every car.<br /><em>Ready on time.</em></h1>
           <p class="lede">FlowDrive brings your service lane, body shop, detail and sales teams into one intelligent vehicle workflow.</p>
-          <div class="hero-actions"><a class="primary-button" href="vehicles.html">Start with a vehicle <span>→</span></a><a class="play" href="#workflow"><b>▶</b> Watch overview</a></div>
+          <div class="hero-actions"><a class="primary-button" href="dashboard.html">Explore the product <span>→</span></a><a class="play" href="#workflow"><b>▶</b> Watch overview</a></div>
           <div class="trusted"><span>TRUSTED BY FORWARD-THINKING DEALERSHIPS</span><div class="logos"><b>northstar</b><b>VANTAGE</b><b>motormark</b></div></div>
         </div>
         <div class="hero-visual">
@@ -41,6 +41,23 @@
         </div>
       </section>
 
+      <section class="capacity" id="capacity">
+        <div class="capacity-intro"><p class="eyebrow">A CLEAR PLAN FOR EVERY SHIFT</p><h2>Keep work moving<br /><em>at a pace teams can handle.</em></h2><p>FlowDrive sequences vehicle work around each department’s real capacity, so teams know what to do next without getting overloaded.</p><a href="dashboard.html" class="text-link">Try the interactive workboard <span>→</span></a></div>
+        <div class="ops-panel">
+          <div class="ops-top"><div><span class="live-dot"></span><b>Today’s work plan</b><small>Updated just now · 9 vehicles in progress</small></div><span class="shift-label">DAY SHIFT</span></div>
+          <div class="capacity-grid">
+            <article class="capacity-card"><div class="capacity-label"><span class="dept-symbol wash">✦</span><div><b>Wash &amp; detail</b><small>3 of 5 work slots</small></div><strong>60%</strong></div><div class="capacity-track"><i style="width:60%"></i></div></article>
+            <article class="capacity-card"><div class="capacity-label"><span class="dept-symbol repair">⌁</span><div><b>Service &amp; repair</b><small>4 of 4 work slots</small></div><strong class="full">FULL</strong></div><div class="capacity-track"><i class="at-capacity" style="width:100%"></i></div></article>
+            <article class="capacity-card"><div class="capacity-label"><span class="dept-symbol inspect">✓</span><div><b>Inspection</b><small>1 of 3 work slots</small></div><strong>33%</strong></div><div class="capacity-track"><i class="light-load" style="width:33%"></i></div></article>
+          </div>
+          <div class="queue-heading"><div><b>Recommended next</b><small>Sorted by urgency and available capacity</small></div><span>3 VEHICLES</span></div>
+          <article class="queue-item"><span class="queue-rank">01</span><div class="queue-car"><b>2023 Toyota RAV4</b><small>Stock #4182 · Rental return</small></div><span class="queue-task wash-tag">Wash · 35 min</span><span class="queue-reason">Rental due 2:00 PM</span><button class="why-button" aria-expanded="false">Why?</button><p class="reason-detail" hidden>Scheduled first because it has a same-day rental booking and the wash team has two open slots.</p></article>
+          <article class="queue-item"><span class="queue-rank">02</span><div class="queue-car"><b>2022 Honda CR-V</b><small>Stock #4206 · Used inventory</small></div><span class="queue-task inspect-tag">Inspection · 25 min</span><span class="queue-reason">Ready for sale</span><button class="why-button" aria-expanded="false">Why?</button><p class="reason-detail" hidden>Inspection has two open slots. Completing it clears the final check before the vehicle goes to the sales lot.</p></article>
+          <article class="queue-item deferred"><span class="queue-rank">↗</span><div class="queue-car"><b>2021 Ford Explorer</b><small>Stock #4159 · Used inventory</small></div><span class="queue-task repair-tag">Repair · 2 hrs</span><span class="queue-reason">Queued for next slot</span><button class="why-button" aria-expanded="false">Why?</button><p class="reason-detail" hidden>Service is at capacity. The system holds this job in sequence and alerts the team when a slot opens.</p></article>
+          <div class="ops-foot"><span>Suggestions respect team capacity and vehicle deadlines.</span><span class="plan-status">● Plan balanced</span></div>
+        </div>
+      </section>
+
       <section class="metrics" id="results"><div><strong>32%</strong><span>faster time<br />to frontline</span></div><div><strong>4.8<span>hrs</span></strong><span>saved per<br />vehicle</span></div><div><strong>98%</strong><span>on-time<br />completion</span></div><div><strong>1</strong><span>connected<br />workspace</span></div></section>
 
       <section class="workflow" id="workflow">
@@ -53,5 +70,6 @@
       <section class="cta" id="demo"><div class="cta-orb one"></div><div class="cta-orb two"></div><p class="eyebrow">READY TO RUN A TIGHTER LANE?</p><h2>Your lot is waiting.<br /><em>Let's get moving.</em></h2><a class="primary-button light" href="mailto:hello@flowdrive.com">Book your demo <span>→</span></a><small>No credit card. No complicated setup. Just clearer workflows.</small></section>
     </main>
     <footer><a class="brand" href="#"><i></i> flowdrive</a><span>© 2024 FlowDrive. Built for the road ahead.</span><div><a href="#">Privacy</a><a href="#">Terms</a><a href="#">LinkedIn</a></div></footer>
+    <script src="app.js"></script>
   </body>
 </html>
