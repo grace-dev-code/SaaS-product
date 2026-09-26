@@ -30,11 +30,12 @@ a { color: inherit; }
 .brand-mark path { fill: none; stroke: var(--rust); stroke-width: 5; stroke-linecap: round; }
 .top-actions { display: flex; align-items: center; gap: 11px; }
 .customer-link, .employee-link { display: inline-flex; align-items: center; gap: 13px; padding: 12px 16px; border: 1px solid var(--forest); border-radius: 4px; color: var(--forest); text-decoration: none; font-size: 11px; font-weight: 800; transition: background .2s, color .2s; }
-.customer-link span { color: var(--rust); }
-.customer-link:hover { background: var(--sage); }
-.employee-link { background: var(--forest); color: var(--white); }
-.employee-link span { color: #d6b58d; }
-.employee-link:hover { background: transparent; color: var(--forest); }
+.customer-link { background: var(--forest); color: var(--white); }
+.customer-link span { color: #d6b58d; }
+.customer-link:hover { background: transparent; color: var(--forest); }
+.employee-link { background: transparent; color: var(--forest); }
+.employee-link span { color: var(--rust); }
+.employee-link:hover { background: var(--sage); }
 
 .hero { max-width: 1240px; margin: auto; padding: 91px 34px 78px; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 72px; }
 .hero-copy { max-width: 620px; }

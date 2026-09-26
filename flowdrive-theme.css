@@ -51,11 +51,13 @@ body { background: var(--paper); color: var(--ink); font-family: var(--font); }
   box-shadow: 0 16px 42px #3443380d;
 }
 .board, .customer-vehicle, .intake-card { border-radius: 8px; }
-.customer-access { background: var(--forest); border-radius: 8px; }
-.customer-access h1 { color: var(--white); }
-.customer-access-copy { border-color: #ffffff2b; }
+.customer-access { background: transparent; border-radius: 0; color: var(--ink); }
+.customer-access h1 { color: var(--forest); }
+.customer-access-copy { border-color: var(--line); }
 .customer-access-form { border-radius: 6px; }
-.customer-access-note { background: #ffffff12; border-color: #ffffff20; }
+.customer-access-note { width: fit-content; max-width: 100%; align-items: center; gap: 11px; padding: 11px 13px; border: 1px solid #d4e2d8; border-radius: 5px; background: var(--sage); color: var(--forest); }
+.customer-access-note span { flex: 0 0 auto; color: var(--rust); }
+.customer-access .customer-access-note p { flex: 1 1 auto; max-width: none; color: var(--forest) !important; opacity: 1; visibility: visible; }
 .customer-access-form input, .customer-code-form input, .field input, .field select, .field textarea,
 .search-box, .customer-code-input input { border-color: #d9d8ce; border-radius: 4px; background: #fffdf8; color: var(--ink); }
 .customer-access-form input:focus, .customer-code-form input:focus, .field input:focus,
@@ -107,5 +109,5 @@ thead { background: #f5f2ea; }
 
 @media (max-width: 760px) {
   .customer-page { padding: 25px 14px 40px; }
-  .customer-access-copy { border-right: 0; border-bottom: 1px solid #ffffff2b; }
+  .customer-access-copy { border-right: 0; border-bottom: 1px solid var(--line); }
 }
