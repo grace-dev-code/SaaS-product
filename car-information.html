@@ -9,7 +9,7 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#" aria-label="Fieldnote home"><span class="brand-mark">F</span><span class="brand-name">fieldnote<small>VEHICLE SERVICE</small></span></a>
+    <a class="brand" href="./index.html" aria-label="Go to the Fieldnote home page"><span class="brand-mark">F</span><span class="brand-name">fieldnote<small>VEHICLE SERVICE</small></span></a>
     <div class="top-actions"><span class="storage-state"><i></i> Shared Supabase workspace</span><a class="view-switch" id="viewSwitchLink" href="?view=customer">Switch to customer view →</a><button class="icon-button" id="exportBtn" title="Export records" aria-label="Export records">⇧</button><button class="primary-button" id="addCarBtn"><span>＋</span> New service record</button></div>
   </header>
   <main class="main" id="staffMain">
@@ -23,8 +23,11 @@
     <footer class="footer">Fieldnote <span>·</span> Vehicle service records</footer>
   </main>
   <main class="customer-page hidden" id="customerMain">
-    <section class="customer-welcome"><div class="eyebrow">CUSTOMER PORTAL</div><h1>Enter your customer code</h1><p>View service progress and the full history for your vehicles.</p><form id="customerCodeForm" class="customer-code-form"><input id="customerCodeInput" autocomplete="off" placeholder="e.g. FN-4A72C8D1" required><button class="primary-button" type="submit">View my vehicles <span>→</span></button></form><div id="customerCodeMessage" class="customer-code-message" role="status"></div></section>
-    <section class="customer-results hidden" id="customerResults"></section>
+    <section class="customer-access">
+      <div class="customer-access-copy"><div class="eyebrow">SERVICE TRACKER</div><h1>Your car, clearly accounted for.</h1><p>Use the code from your service confirmation to see the latest workshop progress and collection status.</p><div class="customer-access-note"><span>01</span><p>Your code is private to your service record. We never show contact details here.</p></div></div>
+      <form id="customerCodeForm" class="customer-access-form"><label for="customerCodeInput">Customer access code</label><div class="customer-code-input"><input id="customerCodeInput" autocomplete="off" placeholder="FN-XXXXXXXX" required><button class="primary-button" type="submit">View status <span>→</span></button></div><p>Check your booking confirmation if you cannot find your code.</p><div id="customerCodeMessage" class="customer-code-message" role="status"></div></form>
+    </section>
+    <section class="customer-results hidden" id="customerResults" aria-live="polite"></section>
   </main>
 
   <div class="overlay hidden" id="detailOverlay"><aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="detailTitle"><div class="drawer-head"><div><div class="eyebrow">VEHICLE RECORD</div><h2 id="detailTitle">Service record</h2></div><button class="close-button" data-close="detailOverlay" aria-label="Close">×</button></div><div id="detailContent"></div></aside></div>
