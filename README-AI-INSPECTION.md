@@ -6,7 +6,7 @@ Inspection photos and reports are stored in `service_records.record_data.inspect
 
 ## Deployment setup
 
-1. Apply `supabase/migrations/202609260003_customer_portal_service_records.sql` if the customer-code lookup RPC is not already installed, then apply `supabase/migrations/202609260005_hide_internal_inspection_data.sql` to keep internal inspection reports out of customer responses. Both use the existing `service_records` table and its `customer_code`.
+1. If this migration has not already been applied to the shared Supabase project, apply `supabase/migrations/202609260005_hide_internal_inspection_data.sql`. It creates or updates the customer-code RPC over the existing `service_records` table and excludes internal inspection reports from customer responses.
 2. Add `OPENAI_API_KEY` to the Vercel project’s server-side Environment Variables for the Preview and Production environments that should support analysis. Never add it to `supabase-config.js`, a `VITE_` variable, or browser code.
 3. Optionally set `OPENAI_VISION_MODEL`; the default is `gpt-4.1-mini`.
 4. Deploy the branch through Vercel. The endpoint requires a valid Supabase employee sign-in and limits a report to four compressed photos.
