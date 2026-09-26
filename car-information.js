@@ -4,12 +4,16 @@
   // never expose provider API keys in browser code. Expected JSON: {plate, vehicle, estimatedTime,
   // services:[{type,title,estimatedTime}]}. `services` can return individual estimates.
   const AI_ANALYSIS_ENDPOINT = window.FIELDNOTE_AI_ENDPOINT || '';
-  // Keep these browser-safe project values in sync with supabase-config.js.
-  // This page always uses the shared Supabase service-records database.
+  const DB_NAME = 'fieldnote_vehicle_records';
+  const STORE = 'vehicles';
+  // Keep these browser-safe project values in sync with supabase-config.js. Local file previews
+  // deliberately use IndexedDB so the complete interface works without a server or sign-in.
   const SUPABASE_URL = 'https://udkwrdbrvfhmyewomcsx.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_oE_u-bKil_B8jjVb2r-lCw_u2Nq-uks';
+  const isLocalPreview = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
   const supabaseConfigured = !!(window.supabase?.createClient && SUPABASE_URL && SUPABASE_ANON_KEY);
   const supabase = supabaseConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+  let useLocalStorage = isLocalPreview || !supabase;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const nowISO = () => new Date().toISOString();
@@ -18,18 +22,36 @@
   const estimates = {Repair:'About 2 hours',Wash:'About 40 minutes',Rental:'About 30 minutes',Sales:'About 1 hour'};
   const defaultTitles = {Repair:'Repair and inspection',Wash:'Vehicle wash',Rental:'Rental handover',Sales:'Vehicle sales enquiry'};
   const types = ['Repair','Wash','Rental','Sales'];
-  let records = [], activeFilter = 'all', selectedId = null, pendingConfirmId = null, mergedRecordId = null;
+  let db, records = [], activeFilter = 'all', selectedId = null, pendingConfirmId = null, mergedRecordId = null;
   let toastTimer, cameraStream = null, currentPhoto = '', estimateTimer = null, visionLibraryPromise = null, facingMode = 'environment', activeVoice = null;
   let customerView = false, activeCustomerCode = '';
 
+  function openLegacyDb() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, 1);
+      request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains(STORE)) request.result.createObjectStore(STORE, {keyPath:'id'}); };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+  function legacyDbRequest(database, mode, action) {
+    return new Promise((resolve, reject) => {
+      const tx=database.transaction(STORE,mode), request=action(tx.objectStore(STORE));
+      request.onsuccess=()=>resolve(request.result); request.onerror=()=>reject(request.error);
+    });
+  }
   async function allRecords(){
-    if(!supabase)throw new Error('Supabase could not be loaded. Check your connection and refresh the page.');
+    if(useLocalStorage)return readLegacyRecords();
     const {data,error}=await supabase.from('service_records').select('id,plate,customer_code,record_data,created_by').order('created_at',{ascending:false});
     if(error)throw error;
     return(data||[]).map(row=>({...row.record_data,id:row.id,plate:row.plate,customerCode:row.customer_code,createdBy:row.created_by}));
   }
   async function saveRecord(record){
-    if(!supabase)throw new Error('Supabase could not be loaded. Check your connection and refresh the page.');
+    if(useLocalStorage){
+      const database=await openLegacyDb();
+      try{await legacyDbRequest(database,'readwrite',store=>store.put(record));}finally{database.close();}
+      return;
+    }
     const {data:{session},error:sessionError}=await supabase.auth.getSession();
     if(sessionError)throw sessionError;
     if(!session?.user)throw new Error('Sign in to save service records to the shared workspace.');
@@ -38,6 +60,14 @@
     if(error)throw error;
     record.createdBy||=session.user.id;
   }
+  async function readLegacyRecords(){const database=await openLegacyDb();try{return await legacyDbRequest(database,'readonly',store=>store.getAll());}finally{database.close();}}
+  const ago=minutes=>new Date(Date.now()-minutes*60000).toISOString();
+  const seedRecords=()=>[
+    {id:'sample-1',plate:'KPH482',vehicle:'Toyota RAV4 · 2021',customer:'Mia Chen',phone:'021 445 830',customerCode:'FN-DEMO-482',service:'Repair',status:'in_progress',estimate:'About 1 hr 20 min',request:'A noise when starting. Please inspect the brakes and belt first. Call before any work over the $600 budget.',photo:'',createdAt:ago(143),events:[{at:ago(18),title:'Brake and belt inspection in progress',note:'Technician noted light belt wear; inspection continues.'},{at:ago(143),title:'Service record created',note:'Vehicle checked in and customer request recorded.'}]},
+    {id:'sample-2',plate:'LQW731',vehicle:'Honda Fit · 2019',customer:'James Wilson',phone:'022 809 144',customerCode:'FN-DEMO-731',service:'Wash',status:'pending',estimate:'About 35 min',request:'Interior and exterior clean. Please pay extra attention to pet hair in the boot.',photo:'',createdAt:ago(68),events:[{at:ago(68),title:'Service record created',note:'Vehicle checked in and is waiting to be assigned.'}]},
+    {id:'sample-3',plate:'NZT205',vehicle:'Mazda CX-5 · 2022',customer:'Sarah Lee',phone:'027 551 097',customerCode:'FN-DEMO-205',service:'Repair',status:'done',estimate:'Completed',request:'Routine service, oil and filter change.',photo:'',createdAt:ago(290),events:[{at:ago(72),title:'Service completed',note:'Oil and filter changed; road test complete.'},{at:ago(260),title:'Work started',note:'Technician began the routine service.'},{at:ago(290),title:'Service record created',note:'Customer approved the listed service.'}]},
+    {id:'sample-4',plate:'JRM619',vehicle:'Subaru Outback · 2020',customer:'Oliver Park',phone:'021 901 662',customerCode:'FN-DEMO-619',service:'Rental',status:'in_progress',estimate:'Ready for pickup at 4:30 PM',request:'Vehicle is prepared for pickup. Confirm fuel level and note the existing scratch on the right rear door at handover.',photo:'',createdAt:ago(350),events:[{at:ago(33),title:'Vehicle preparation complete',note:'Fuel 7/8; existing right rear door scratch recorded.'},{at:ago(350),title:'Service record created',note:'Rental record created.'}]}
+  ];
   const dateLabel=value=>new Intl.DateTimeFormat('en-NZ',{month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(value));
   const itemStatusLabel=status=>status==='completed'?'Completed':status==='in_progress'?'In progress':'Not started';
   const itemStatusClass=status=>status==='completed'?'completed':status==='in_progress'?'':'not-started';
@@ -126,12 +156,12 @@
     const record={id:makeId(),plate,vehicle:String(data.get('vehicle')||'').trim(),customer,phone,email,customerCode,status:'not_started',request,summaryTitle,photo:currentPhoto,services,createdAt:at,updatedAt:at};await saveRecord(record);await reload();closeOverlay('intakeOverlay');openDetail(record.id);toast(`${services.length} service item${services.length===1?'':'s'} created`);
   }
   function customerStatus(record){const services=getItems(record);if(services.length&&services.every(service=>service.status==='completed'))return 'completed';if(services.some(service=>service.status==='in_progress'))return 'in_progress';return 'not_started';}
-  function renderCustomerRecords(code){const matches=records.filter(record=>(record.customerCode||'').toUpperCase()===code.toUpperCase()).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));const results=$('#customerResults');if(!matches.length){results.classList.add('hidden');$('#customerCodeMessage').textContent='We could not find vehicles for that code. Check the code and try again.';return;}const active=matches.filter(record=>customerStatus(record)!=='completed').length,ready=matches.filter(record=>customerStatus(record)==='completed').length;$('#customerCodeMessage').textContent='';results.innerHTML=`<header class="customer-dashboard-head"><div><div class="eyebrow">YOUR SERVICE DASHBOARD</div><h2>Everything currently in our care.</h2><p>${matches.length===1?'One vehicle is':'All '+matches.length+' vehicles are'} connected to this customer code.</p></div><div class="customer-code-display"><span>Access code</span><b>${esc(code.toUpperCase())}</b></div></header><div class="customer-summary"><div><span>Vehicles</span><strong>${matches.length}</strong></div><div><span>In workshop</span><strong>${active}</strong></div><div><span>Ready to collect</span><strong>${ready}</strong></div></div><div class="customer-records-list">${matches.map(record=>{const status=customerStatus(record),services=[...getItems(record)].sort(serviceSort),latest=services.flatMap(service=>service.events||[]).sort((a,b)=>new Date(b.at)-new Date(a.at))[0];return `<article class="customer-record customer-record--${status}"><div class="customer-record-masthead"><div class="customer-photo customer-record-photo">${record.photo?`<img src="${record.photo}" alt="${esc(record.plate)}">`:'⌁'}</div><div class="customer-record-identity"><span class="customer-record-label">Vehicle service record</span><h3>${esc(record.plate)}</h3><p>${esc(record.vehicle||'Vehicle details pending')}</p></div><div class="customer-record-state"><span class="status ${itemStatusClass(status)}"><i></i><span class="status-label">${itemStatusLabel(status)}</span></span>${status==='completed'?'<b>Ready for collection</b>':status==='in_progress'?`<span>Expected completion</span>${recordEta(record)}`:'<span>Waiting for workshop allocation</span>'}</div></div><div class="customer-record-body"><div class="customer-services-heading"><div><span class="eyebrow">WORK IN THIS VISIT</span><h4>${services.length} service item${services.length===1?'':'s'}</h4></div>${latest?`<p>Last update <b>${dateLabel(latest.at)}</b></p>`:''}</div><div class="customer-service-grid">${services.map(service=>{const events=[...(service.events||[])].sort((a,b)=>new Date(b.at)-new Date(a.at)),latestEvent=events[0];return `<section class="customer-service-panel"><div class="customer-service-panel-head"><div><span class="service-tag ${typeClass(service.type)}">${esc(service.type)}</span><h5>${esc(service.title)}</h5></div><span class="status ${itemStatusClass(service.status)}"><i></i><span class="status-label">${itemStatusLabel(service.status)}</span></span></div><dl><div><dt>Estimate</dt><dd>${esc(service.estimate||'To be assessed')}</dd></div><div><dt>Latest update</dt><dd>${latestEvent?esc(latestEvent.title):'No updates yet'}</dd></div></dl>${service.request?`<p class="customer-service-note">${esc(service.request)}</p>`:''}${latestEvent?`<div class="customer-service-update"><span>${dateLabel(latestEvent.at)}</span><p>${esc(latestEvent.note||'Our workshop updated this service item.')}</p></div>`:''}</section>`;}).join('')}</div></div></article>`;}).join('')}</div>`;results.classList.remove('hidden');}
+  function renderCustomerRecords(code){const matches=records.filter(record=>(record.customerCode||'').toUpperCase()===code.toUpperCase()).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));const results=$('#customerResults');if(!matches.length){results.classList.add('hidden');$('#customerCodeMessage').textContent='We could not find vehicles for that code. Check the code and try again.';return;}$('#customerCodeMessage').textContent='';results.innerHTML=`<div class="customer-result-heading"><div><div class="eyebrow">CUSTOMER ACCOUNT</div><h2>Your vehicles and services</h2></div><span class="customer-code-chip">Customer code <b>${esc(code.toUpperCase())}</b></span></div>${matches.map(record=>`<article class="customer-vehicle"><div class="customer-vehicle-head"><div class="customer-photo">${record.photo?`<img src="${record.photo}" alt="Vehicle photo">`:'⌁'}</div><div class="customer-vehicle-name"><h3>${esc(record.plate)}</h3><p>${esc(record.vehicle||'Vehicle details pending')}</p><small>${esc(record.customer||'')}</small></div><span class="status ${itemStatusClass(customerStatus(record))}"><i></i><span class="status-label">${itemStatusLabel(customerStatus(record))}</span></span></div>${customerStatus(record)==='completed'?'<div class="pickup-banner"><span>✓</span> Completed — ready for pickup</div>':customerStatus(record)==='not_started'?'<div class="customer-status-banner customer-waiting">Not started — please wait patiently</div>':`<div class="customer-status-banner customer-working"><div><b>Work in progress</b><span>Our team is working on your vehicle.</span></div><div class="customer-eta-block"><span>Estimated completion</span>${recordEta(record)}</div></div>`}<div class="customer-services">${[...getItems(record)].sort(serviceSort).map(service=>`<section class="customer-service"><div class="customer-service-title"><div><h4>${esc(service.title)}</h4><span class="service-tag ${typeClass(service.type)}">${esc(service.type)}</span></div><span class="status ${itemStatusClass(service.status)}"><i></i><span class="status-label">${itemStatusLabel(service.status)}</span></span></div>${service.request?`<p class="customer-request">${esc(service.request)}</p>`:''}<div class="customer-history">${[...(service.events||[])].sort((a,b)=>new Date(b.at)-new Date(a.at)).map(item=>`<div class="customer-history-item"><time>${dateLabel(item.at)}</time><div><b>${esc(item.title)}</b>${item.note?`<p>${esc(item.note)}</p>`:''}</div></div>`).join('')}</div></section>`).join('')}</div></article>`).join('')}`;results.classList.remove('hidden');}
   function activateViewMode(){customerView=new URLSearchParams(location.search).get('view')==='customer';$('#staffMain').classList.toggle('hidden',customerView);$('#customerMain').classList.toggle('hidden',!customerView);$('#addCarBtn').classList.toggle('hidden',customerView);$('#exportBtn').classList.toggle('hidden',customerView);$('.storage-state').classList.toggle('hidden',customerView);const link=$('#viewSwitchLink');link.href=customerView?location.pathname:`${location.pathname}?view=customer`;link.textContent=customerView?'← Switch to staff view':'Switch to customer view →';document.title=customerView?'Customer portal · Fieldnote':'Fieldnote · Vehicle Service Records';}
   async function reload(){records=(await allRecords()).map(normalizeRecord);for(const record of records){if(!record.customerCode){record.customerCode=record.customer?await getOrCreateCustomerCode(record.customer,record.phone||'',record.email||''):newCustomerCode();await saveRecord(record);}}render();if(customerView&&activeCustomerCode)renderCustomerRecords(activeCustomerCode);}
   function exportData(){const blob=new Blob([JSON.stringify({exportedAt:nowISO(),vehicles:records},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`fieldnote-service-records-${new Date().toISOString().slice(0,10)}.json`;link.click();URL.revokeObjectURL(url);toast('Backup downloaded');}
   function initEvents(){
-    $('#addCarBtn').addEventListener('click',openIntake);$('#emptyAddBtn').addEventListener('click',openIntake);$('#intakeForm').addEventListener('submit',event=>{try{createRecord(event).catch(error=>toast(error.message||'Could not save service record'));}catch(error){toast(error.message);}});$('#statusForm').addEventListener('submit',saveStatusChange);$('#extraServiceForm').addEventListener('submit',event=>saveExtraService(event).catch(error=>toast(error.message||'Could not add service')));$('#extraServiceType').addEventListener('change',updateExtraServiceDefaults);$('#viewMergedRecordBtn').addEventListener('click',()=>{closeOverlay('mergeNoticeOverlay');if(mergedRecordId)openDetail(mergedRecordId);});$('#customerCodeForm').addEventListener('submit',async event=>{event.preventDefault();activeCustomerCode=$('#customerCodeInput').value.trim().toUpperCase();$('#customerCodeMessage').textContent='Loading your vehicles…';try{if(!supabase)throw new Error('Supabase could not be loaded.');const {data,error}=await supabase.rpc('get_customer_service_records',{p_customer_code:activeCustomerCode});if(error)throw error;records=(data||[]).map(normalizeRecord);renderCustomerRecords(activeCustomerCode);}catch(error){console.error(error);$('#customerCodeMessage').textContent='Customer lookup is not available. Check the customer code and database connection.';}});$('#searchInput').addEventListener('input',render);
+    $('#addCarBtn').addEventListener('click',openIntake);$('#emptyAddBtn').addEventListener('click',openIntake);$('#intakeForm').addEventListener('submit',event=>{try{createRecord(event).catch(error=>toast(error.message||'Could not save service record'));}catch(error){toast(error.message);}});$('#statusForm').addEventListener('submit',saveStatusChange);$('#extraServiceForm').addEventListener('submit',event=>saveExtraService(event).catch(error=>toast(error.message||'Could not add service')));$('#extraServiceType').addEventListener('change',updateExtraServiceDefaults);$('#viewMergedRecordBtn').addEventListener('click',()=>{closeOverlay('mergeNoticeOverlay');if(mergedRecordId)openDetail(mergedRecordId);});$('#customerCodeForm').addEventListener('submit',async event=>{event.preventDefault();activeCustomerCode=$('#customerCodeInput').value.trim().toUpperCase();$('#customerCodeMessage').textContent='Loading your vehicles…';try{if(useLocalStorage)records=(await allRecords()).map(normalizeRecord);else{const {data,error}=await supabase.rpc('get_customer_service_records',{p_customer_code:activeCustomerCode});if(error)throw error;records=(data||[]).map(normalizeRecord);}renderCustomerRecords(activeCustomerCode);}catch(error){console.error(error);$('#customerCodeMessage').textContent='Customer lookup is not available. Check the customer code and database connection.';}});$('#searchInput').addEventListener('input',render);
     $('#filters').addEventListener('click',event=>{const button=event.target.closest('[data-filter]');if(!button)return;activeFilter=button.dataset.filter;$$('.filter').forEach(el=>el.classList.toggle('active',el===button));render();});
     $('#vehicleRows').addEventListener('click',event=>{const row=event.target.closest('tr[data-id]');if(row)openDetail(row.dataset.id);});$('#exportBtn').addEventListener('click',exportData);$('#backupBtn').addEventListener('click',exportData);
     $$('[data-close]').forEach(button=>button.addEventListener('click',()=>closeOverlay(button.dataset.close)));$$('.overlay').forEach(overlay=>overlay.addEventListener('click',event=>{if(event.target===overlay)closeOverlay(overlay.id);}));
@@ -144,13 +174,25 @@
   }
   async function init(){
     activateViewMode();initEvents();
-    $('.storage-state').innerHTML='<i></i> Shared Supabase workspace';
-    if(!supabase){toast('Supabase could not be loaded. Check your connection and refresh the page.');return;}
+    $('.storage-state').innerHTML=`<i></i> ${useLocalStorage?'Local test workspace · changes stay in this browser':'Shared Supabase workspace'}`;
+    if(useLocalStorage){
+      try{
+        const saved=await readLegacyRecords(),savedIds=new Set(saved.map(record=>record.id));
+        for(const sample of seedRecords())if(!savedIds.has(sample.id))await saveRecord(sample);
+        await reload();
+        if(customerView)$('#customerCodeMessage').textContent='Try a demo code: FN-DEMO-482, FN-DEMO-731, FN-DEMO-205, or FN-DEMO-619.';
+      }catch(error){console.error(error);toast(error.message||'Could not open the local test workspace.');}
+      return;
+    }
     if(customerView)return;
     try{
       const {data:{session},error:authError}=await supabase.auth.getSession();
       if(authError)throw authError;
       if(!session?.user){window.location.replace('login.html');return;}
+      const existing=await allRecords(),existingIds=new Set(existing.map(record=>record.id));
+      const legacy=(await readLegacyRecords()).filter(record=>!String(record.id||'').startsWith('sample-')&&!existingIds.has(record.id));
+      for(const item of legacy){const record=normalizeRecord(item);record.customerCode||=newCustomerCode();await saveRecord(record);}
+      if(legacy.length)toast('Existing local service records moved to the shared database.');
       await reload();
       supabase.channel('service-records-updates').on('postgres_changes',{event:'*',schema:'public',table:'service_records'},()=>reload().catch(error=>console.error(error))).subscribe();
     }catch(error){console.error(error);toast(error.message||'Could not connect to the shared service records database.');}
