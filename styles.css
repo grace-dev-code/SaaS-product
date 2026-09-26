@@ -11,3 +11,47 @@
 .service-item-actions .service-progress{width:124px;min-width:124px;justify-content:center}.inline-confirm{font-size:11px;font-weight:600;color:#783f2b;background:#fff4ec;border-color:#ecc9b7;padding:6px 8px}.inline-confirm b{font-size:11px;color:#963f20}.inline-confirm .cancel-progress{font-weight:500;color:#665d59;border-color:#e5d8d2;background:#fff}
 .service-progress.is-armed{background:#e7f4eb;color:#1f6d3d;border:2px solid #319455;box-shadow:0 0 0 2px #d7ecde}.service-item-actions .service-progress{height:36px}.inline-confirm{font-size:12px;font-weight:700;color:#8a3d23;background:#fff1e9;border-color:#e8b49a}.inline-confirm b{font-size:12px;color:#a83915}.inline-confirm .cancel-progress{margin-left:4px;padding:5px 9px;font-size:9px;font-weight:600}.service-card.is-completed{background:#f0f2f0;border-color:#e4e7e4}.service-card.is-completed .service-item-title,.service-card.is-completed .detail-val{color:#737d76}.service-card.is-completed .service-item-request{background:#e9ece9}.service-history .mini-event b{display:block;margin:4px 0 6px}.service-history .mini-event small{display:block;line-height:1.6;padding-top:2px}.record-summary{font-size:9px;color:#6b7d70;margin-top:4px;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.eta-clock{font-size:12px;font-weight:700;color:#445a4b}.eta-remaining{font-size:9px;color:#87938b;margin-top:3px}.contact-hint{padding:0 2px;color:#9a7564!important}.field .label-with-action{display:flex;align-items:center;justify-content:space-between;gap:8px}.label-with-action .record-button{position:static;margin:0;align-self:auto;flex:none}.field .label-with-action>span{color:#66736a;font-size:10px}.customer-eta-block{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;background:#f7f9f7;border-bottom:1px solid #edf0ed}.customer-eta-block>span{color:#859188;font-size:10px}.pickup-banner{margin:12px 18px;padding:13px 15px;border:1px solid #77b28a;border-radius:8px;background:#e5f5e9;color:#175b30;font-size:15px;font-weight:700;display:flex;align-items:center;gap:9px}.pickup-banner span{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:#29914c;color:#fff;font-size:15px}.customer-history-item b{display:block;margin-bottom:5px}.customer-history-item p{margin-top:6px}.customer-history-item{padding-bottom:15px}
 .merge-notice-overlay{z-index:20;justify-content:center;align-items:center}.merge-notice{width:min(470px,calc(100% - 30px));text-align:center;padding:30px 30px 22px}.merge-notice .modal-actions{justify-content:center}.merge-notice h2{font:700 20px Manrope,sans-serif;margin:7px 0 9px}.merge-notice p{font-size:12px;line-height:1.65;color:#68766e;margin:0 auto;max-width:360px}.merge-success-mark{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#e7f3eb;color:#327650;font-size:23px;font-weight:700;margin:0 auto 12px}.customer-page .hidden{display:none!important}
+/* Screenshot refinements: anchored vehicle picker, completed records, and readable service history. */
+#intakeForm .form-grid{position:relative}
+#vehicleSuggestions.suggestion-panel{position:absolute;z-index:12;display:flex;flex-direction:column;gap:3px!important;max-height:230px;overflow:auto;padding:7px;background:#fff;border:1px solid #dce6de;border-radius:9px;box-shadow:0 12px 28px #1f35271f}
+.suggestion-heading{padding:4px 7px 7px!important;font-size:9px!important;font-weight:700;letter-spacing:.7px;color:#88958c!important;text-transform:uppercase}
+.vehicle-suggestion{grid-template-columns:minmax(70px,.7fr) minmax(100px,1.2fr) minmax(90px,1fr) 58px;gap:9px;min-height:43px;padding:8px 9px;border:1px solid transparent;border-radius:6px}
+.vehicle-suggestion:hover,.vehicle-suggestion:focus{background:#f3f8f4;border-color:#e5eee7}
+.suggestion-plate{font-size:11px}
+.suggestion-vehicle,.suggestion-customer{font-size:10px}
+.suggestion-state{justify-self:end;border-radius:20px;padding:3px 7px;background:#f0f2f0;color:#7f8a82;font-size:8px;font-weight:600}
+.suggestion-state.active{background:#edf6ef;color:#3d7951}
+.suggestion-empty{padding:10px;color:#88958c;font-size:10px}
+tr.record-completed td{background:#eceeec;border-top-color:#dfe3df;color:#859087}
+tr.record-completed .plate,tr.record-completed .record-summary{color:#6e7971}
+tr.record-completed .car-meta,tr.record-completed .customer-name,tr.record-completed .recent{color:#909a92}
+tr.record-completed .car-thumb{filter:grayscale(.75);background:#e0e4e0}
+tr.record-completed .service-tag{background:#e2e6e2;color:#748077}
+tr.record-completed .status-label{color:#78847b}
+tr.record-completed:hover td{background:#e7eae7}
+.service-history{margin-top:13px;padding-top:11px;border-top:1px solid #edf0ed}
+.history-heading{margin:0 0 9px;color:#7d8a81;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.mini-event{position:relative;display:grid;grid-template-columns:102px minmax(0,1fr);gap:12px;padding:7px 0 12px;border-left:1px solid #e3eae4;margin-left:4px;padding-left:14px}
+.mini-event:before{content:'';position:absolute;left:-4px;top:11px;width:7px;height:7px;border-radius:50%;background:#7da38a;box-shadow:0 0 0 3px #eef4ef}
+.mini-event time{color:#98a39b;font-size:9px;line-height:1.5;white-space:nowrap}
+.event-copy{min-width:0}
+.event-copy b{display:block;color:#35443b;font-size:10px;line-height:1.45;margin:0 0 7px}
+.event-copy small{display:block;color:#829087;font-size:9px;line-height:1.65;white-space:normal}
+.service-card.is-completed .service-history{border-top-color:#dfe4df}
+.service-card.is-completed .mini-event{border-left-color:#d9dfda}
+.service-card.is-completed .mini-event:before{background:#9ca79e;box-shadow:0 0 0 3px #e7ebe7}
+.record-button{min-width:114px;height:29px;display:inline-flex;align-items:center;justify-content:center;gap:5px;margin:0!important;white-space:nowrap}
+.record-button.recording{background:#fff0ec;color:#a94c33;box-shadow:0 0 0 2px #f7d7cd}
+#voiceHint{color:#a0806a!important}
+.customer-status-banner{margin:12px 18px;padding:13px 15px;border:1px solid;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.customer-waiting{background:#f1f3f2;border-color:#dce1dd;color:#65716a;font-size:14px;font-weight:700}
+.customer-working{background:#fff7dc;border-color:#eedb9b;color:#785c16}
+.customer-working>div:first-child{display:flex;flex-direction:column;gap:4px}
+.customer-working b{font-size:14px}
+.customer-working>div:first-child span{font-size:10px;color:#927a3f}
+.customer-working .customer-eta-block{flex-direction:column;align-items:flex-end;gap:4px;padding:0;background:transparent;border:0}
+.customer-working .customer-eta-block>span{color:#927a3f;font-size:9px}
+.customer-working .eta-clock{color:#765d20}
+.customer-working .eta-remaining{color:#927a3f;margin:0}
+@media(max-width:760px){.vehicle-suggestion{grid-template-columns:70px 1fr 58px}.suggestion-customer{display:none}.mini-event{grid-template-columns:78px minmax(0,1fr);gap:8px}.customer-status-banner{margin:10px;padding:11px;align-items:flex-start}.customer-working .customer-eta-block{align-items:flex-end}}
+.voice-actions{display:flex;align-items:center;gap:8px}.ai-beta-note{font-size:8px;color:#a0806a;white-space:nowrap}@media(max-width:520px){.voice-actions{gap:5px}.ai-beta-note{white-space:normal;text-align:right;max-width:100px}}

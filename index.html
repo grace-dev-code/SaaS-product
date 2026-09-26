@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#f6f7f5" />
   <title>Fieldnote · Vehicle Service Records</title>
-  <link rel="stylesheet" href="./styles.css?v=fieldnote-records-7" />
+  <link rel="stylesheet" href="./styles.css?v=fieldnote-records-9" />
 </head>
 <body>
   <header class="topbar">
@@ -38,10 +38,10 @@
       <label class="field"><span>Phone number</span><input name="phone" id="phoneInput" inputmode="tel" autocomplete="off" placeholder="For service updates" /></label>
       <label class="field"><span>Email address</span><input name="email" id="emailInput" type="email" autocomplete="off" placeholder="Or enter an email address" /></label>
       <div class="field-hint full contact-hint">Enter at least a phone number or an email address.</div>
-      <div class="field full hidden" id="vehicleSuggestions" role="listbox" aria-label="Matching vehicles and customers"></div>
+      <div class="field full hidden suggestion-panel" id="vehicleSuggestions" role="listbox" aria-label="Matching vehicles and customers"></div>
       <div class="field full"><span>Services <i>*</i></span><div class="service-checks" id="serviceChoices"><label><input type="checkbox" value="Repair"><span>Repair</span></label><label><input type="checkbox" value="Wash"><span>Wash</span></label><label><input type="checkbox" value="Rental"><span>Rental</span></label><label><input type="checkbox" value="Sales"><span>Sales</span></label></div></div>
       <div class="field full hidden" id="serviceItemsField"><span>Service item title and estimated time <i>*</i></span><div class="service-item-inputs" id="serviceItemInputs"></div><span class="field-hint">Each selected service is tracked separately. You can edit every title and estimate.</span></div>
-      <label class="field full"><span class="label-with-action"><span>Customer request / vehicle condition</span><button type="button" class="record-button" id="recordRequestBtn" title="Record voice note">◉ <span>Record</span></button></span><textarea name="request" id="requestInput" rows="3" placeholder="Describe the customer's request, symptoms, or handover notes…"></textarea><span class="field-hint" id="voiceHint">Voice input uses your browser's speech recognition.</span></label>
+      <label class="field full"><span class="label-with-action"><span>Customer request / vehicle condition</span><span class="voice-actions"><small class="ai-beta-note">Internal test · AI not connected</small><button type="button" class="record-button" id="recordRequestBtn" title="Start voice recording">◉ <span>Start recording</span></button></span></span><textarea name="request" id="requestInput" rows="3" placeholder="Describe the customer's request, symptoms, or handover notes…"></textarea><span class="field-hint" id="voiceHint">Click to start recording, then click again to stop and transcribe.</span></label>
       <div class="full estimate-note" id="estimateNote">Editable time suggestions are generated from service type. Connect an AI endpoint for vehicle-specific predictions.</div>
     </div><div class="modal-actions"><button type="button" class="secondary-button" data-close="intakeOverlay">Cancel</button><button type="submit" class="primary-button">Create record <span>→</span></button></div></form>
   </section></div>
@@ -52,6 +52,6 @@
   <div class="overlay hidden" id="resumeServiceOverlay"><section class="modal status-modal" role="dialog" aria-modal="true" aria-labelledby="resumeServiceTitle"><div class="modal-head"><div><div class="eyebrow">RETURNING VEHICLE</div><h2 id="resumeServiceTitle">Continue a previous service</h2><p id="resumeServiceVehicle"></p></div><button class="close-button" data-close="resumeServiceOverlay" aria-label="Close">×</button></div><div id="resumeServiceOptions" class="resume-options"></div><div class="modal-actions"><button type="button" class="secondary-button" data-close="resumeServiceOverlay">Cancel</button></div></section></div>
   <div class="overlay hidden merge-notice-overlay" id="mergeNoticeOverlay"><section class="modal merge-notice" role="dialog" aria-modal="true" aria-labelledby="mergeNoticeTitle"><div class="merge-success-mark">✓</div><div class="eyebrow">VEHICLE RECORD UPDATED</div><h2 id="mergeNoticeTitle">Service items added</h2><p id="mergeNoticeText">This vehicle is currently being serviced. New service items have been added to the existing vehicle record.</p><div class="modal-actions"><button class="secondary-button" data-close="mergeNoticeOverlay">Close</button><button class="primary-button" id="viewMergedRecordBtn">View vehicle record <span>→</span></button></div></section></div>
   <div class="toast" id="toast" role="status"></div>
-  <script src="./app.js?v=fieldnote-records-7"></script>
+  <script src="./app.js?v=fieldnote-records-9"></script>
 </body>
 </html>
