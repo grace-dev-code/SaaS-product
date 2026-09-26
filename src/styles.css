@@ -34,10 +34,10 @@ button, input { font: inherit; }
 .mechanic-link:hover { background: transparent; color: var(--forest); }
 .mechanic-link span { margin-left: 14px; color: #d6b58d; }
 
-.hero { max-width: 1240px; margin: auto; padding: 91px 34px 76px; display: grid; grid-template-columns: 1.08fr .78fr; align-items: center; gap: 86px; }
+.hero { max-width: 1240px; margin: auto; padding: 91px 34px 76px; display: grid; grid-template-columns: 1.2fr .78fr; align-items: center; gap: 72px; }
 .eyebrow { margin: 0 0 16px; color: var(--sage-ink); font: 500 10px 'DM Mono', monospace; letter-spacing: 1.4px; }
 .live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--rust); margin-right: 10px; box-shadow: 0 0 0 4px #a879461c; }
-.hero h1 { max-width: 680px; margin: 0; color: var(--forest); font: 400 clamp(54px, 6.5vw, 82px)/1.08 Marcellus, Georgia, serif; letter-spacing: -1.7px; }
+.hero h1 { max-width: 720px; margin: 0; color: var(--forest); font: 400 clamp(54px, 5.6vw, 70px)/1.12 Marcellus, Georgia, serif; letter-spacing: -1.4px; }
 .hero h1 em { color: var(--rust); font-style: normal; }
 .hero-lede { max-width: 510px; color: #68736c; font-size: 14px; line-height: 1.9; margin: 25px 0; }
 .hero-points { display: flex; flex-wrap: wrap; gap: 12px 19px; color: #53645c; font-size: 10px; font-weight: 700; }
