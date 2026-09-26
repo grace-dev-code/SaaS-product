@@ -1,41 +1,77 @@
 # FlowDrive
 
-FlowDrive's vehicle intake prototype. The vehicle form and the other pages use the same Supabase `vehicles` table through the shared functions in `vehicles-api.js`.
+FlowDrive is a vehicle service workspace for employees and customers. Employees create and update service records, add inspection findings, and keep work moving. Customers use a private access code to follow service progress and pickup readiness.
 
-## Connect the shared Supabase project
+The app is built with plain HTML, CSS, and browser JavaScript, with Supabase for shared data and authentication. The `/api` endpoints are serverless functions intended for Vercel. There is no npm install or build step in this repository.
 
-1. Use the team's existing Supabase project, or create one for FlowDrive. The database project is shared across Git branches; branches share records when each is configured with this same project URL and public publishable (anon) key.
-2. In the Supabase SQL Editor, run [`supabase/migrations/202609260001_create_vehicles.sql`](supabase/migrations/202609260001_create_vehicles.sql) once.
-3. Copy the project URL and publishable/anon key from Supabase **Project Settings → API** into [`supabase-config.js`](supabase-config.js). These are browser-safe public values. Never use a `service_role` or secret key in this file.
-4. Serve this folder over HTTP (for example `python -m http.server 8000`) and open `/vehicles.html`. The page supports Supabase email/password sign-up and sign-in. Enable email/password auth in the Supabase project.
-5. Share the same project URL, public key and migration with teammates so their branches connect to the same vehicle data. Do not create a separate Supabase project per branch.
+## Main user journeys
 
-The initial RLS policies treat authenticated accounts in this Supabase project as members of one shared workspace: signed-in users can read and update its vehicles, and new records record their creator. If the product later needs multiple dealerships with private inventories, add organization membership and tenant-scoped policies before onboarding those dealerships.
+- **Landing page:** [`index.html`](index.html) explains the employee and customer journeys.
+- **Customer status:** Open [`car-information.html?view=customer`](car-information.html?view=customer) and enter the access code provided by the service team. A code can show associated vehicles when customer contact details match. The customer lookup uses a restricted database function and does not expose phone numbers, email addresses, or staff-only inspection reports.
+- **Employee workspace:** Select **Employee sign in** on the landing page. Employees sign in with Google through Supabase Auth and are sent to [`car-information.html`](car-information.html), where they manage service records and updates.
+- **Vehicle inventory intake:** [`vehicles.html`](vehicles.html) is a separate authenticated intake page for VIN-based vehicle inventory. It uses the `vehicles` table, which is distinct from workshop service records.
 
-## Shared vehicle data API
+## Run a local preview
 
-Import these functions from `vehicles-api.js` in other browser pages:
+From the project root, start a local web server:
 
-```js
-import { listVehicles, getVehicle, createVehicle, updateVehicle } from './vehicles-api.js';
-
-const vehicles = await listVehicles();
-const vehicle = await getVehicle(vehicleId);
-await updateVehicle(vehicleId, { notes: 'Inspection started' });
+```powershell
+py -m http.server 8000
 ```
 
-All pages in this app should reuse `vehicles-api.js` and `supabase-config.js` so they read and update the same records and auth session.
+Then open [http://localhost:8000](http://localhost:8000). On localhost, the service-record page uses a browser-local test workspace with sample data. The sample customer codes are `FN-DEMO-482`, `FN-DEMO-731`, `FN-DEMO-205`, and `FN-DEMO-619`. This local data is not shared with Supabase or other browsers.
 
-## Enable Google sign-in for mechanics
+The local static server does not run the `/api` serverless functions. Use a Vercel deployment or Vercel’s local development server to try AI photo analysis and voice-note summaries.
 
-The mechanic login page uses Supabase Auth and Google OAuth. Google handles Google-account two-step verification during its own sign-in flow.
+## Supabase setup
 
-1. In Supabase **Project Settings → API**, add the project URL and the browser-safe publishable/anon key to `supabase-config.js`. Do not use a `service_role` key.
-2. In Google Cloud Console, configure the consent screen and create an OAuth client of type **Web application**.
-3. In that Google OAuth client, add `http://localhost:8000` as an authorized JavaScript origin for local testing. Add your public site origin when deploying.
-4. In Google OAuth client settings, add your Supabase callback URL as an authorized redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback`. Supabase displays the exact value in **Authentication → Providers → Google**.
-5. In Supabase **Authentication → Providers → Google**, enable Google and paste the Google Client ID and Client Secret.
-6. In Supabase **Authentication → URL Configuration**, set the Site URL and add `http://localhost:8000/login.html` to the allowed Redirect URLs. Add the deployed `https://your-domain/login.html` URL later.
-7. Run `python3 -m http.server 8000` from the project folder and open `http://localhost:8000/login.html`.
+The app connects to the team’s shared Supabase project. In the Supabase SQL Editor, apply these migrations in order if they have not already been applied:
 
-After Google returns the user to FlowDrive, `login.js` restores the Supabase session automatically. Use the session's user ID for row-level security policies and dealership roles in future protected pages.
+1. [`202609260001_create_vehicles.sql`](supabase/migrations/202609260001_create_vehicles.sql) — vehicle inventory and its authenticated workspace policies.
+2. [`202609260002_create_service_records.sql`](supabase/migrations/202609260002_create_service_records.sql) — workshop service records, staff policies, Realtime, and the initial customer lookup function.
+3. [`202609260003_align_records_and_archive.sql`](supabase/migrations/202609260003_align_records_and_archive.sql) — searchable service fields, legacy data backfill, record archive, and the allowlisted customer response.
+4. [`202609260005_hide_internal_inspection_data.sql`](supabase/migrations/202609260005_hide_internal_inspection_data.sql) — ensures staff-only inspection reports are excluded from customer responses.
+5. [`202609270001_link_customer_vehicle_lookup.sql`](supabase/migrations/202609270001_link_customer_vehicle_lookup.sql) — lets a customer access code show other records associated with matching customer identity details.
+
+The migrations are intended for the shared project and should be applied once. Check the project’s migration history before running them manually.
+
+The browser uses a Supabase project URL and publishable (anon) key. The module-based pages read them from [`supabase-config.js`](supabase-config.js); the service-record and customer page also has matching constants near the top of [`car-information.js`](car-information.js). Keep those values aligned if the project changes. Publishable keys are designed for browser use; never put a `service_role` key or other secret in client-side files.
+
+### Employee Google sign-in
+
+1. Enable Google under Supabase **Authentication → Providers** and configure a Google OAuth web client.
+2. Add the Supabase callback URL shown in the provider settings to the Google OAuth client’s authorized redirect URIs: `https://<project-ref>.supabase.co/auth/v1/callback`.
+3. Set the Supabase **Site URL** and add the local and deployed `login.html` URLs under **Authentication → URL Configuration → Redirect URLs**. For local preview, use `http://localhost:8000/login.html`.
+4. Open `login.html` to sign in. After successful authentication, FlowDrive redirects employees to the service-record workspace.
+
+## AI features and deployment
+
+Deploy the project to Vercel to run the serverless endpoints in [`api/`](api/):
+
+- `POST /api/analyze-vehicle-inspection` analyses up to four categorized vehicle photos and returns a structured report for employee review. It requires a signed-in employee and `OPENAI_API_KEY` in the Vercel project’s server-side environment variables. The optional `OPENAI_VISION_MODEL` defaults to `gpt-4.1-mini`.
+- `POST /api/summarize-voice-note` transcribes an employee recording and summarizes it into the selected service field. It also requires an employee session and `OPENAI_API_KEY`. Optional model settings are `OPENAI_TRANSCRIPTION_MODEL` (default `gpt-4o-mini-transcribe`) and `OPENAI_VOICE_SUMMARY_MODEL` (default `gpt-4.1-mini`). Recordings are limited to 2 MB and are not stored as service records.
+
+Set API keys only as server-side Vercel environment variables. Do not add them to `supabase-config.js`, `car-information.js`, or any other browser code. See [README-AI-INSPECTION.md](README-AI-INSPECTION.md) and [README-AI-VOICE.md](README-AI-VOICE.md) for feature-specific details and limitations.
+
+AI photo findings are visual observations for staff review, not a mechanical diagnosis. Photos cannot confirm internal engine health or accurately measure tyre tread depth.
+
+## Data and access notes
+
+- Authenticated employees share one workspace in the configured Supabase project. Current RLS policies are not dealership- or tenant-specific.
+- Customers access only the allowlisted result returned by `get_customer_service_records`; they do not receive direct access to the service-record table or private contact fields.
+- The service-record page imports non-sample records from its older browser IndexedDB into Supabase on an employee’s first signed-in load, skipping records already present. Local preview data remains browser-local.
+- [`service-records.html`](service-records.html) is a legacy IndexedDB prototype, and [`dashboard.html`](dashboard.html) is a local-storage workboard demo. They are not the shared Supabase service-record workspace.
+
+## Project files
+
+| Path | Purpose |
+| --- | --- |
+| `index.html`, `styles.css`, `flowdrive-theme.css` | Public landing page and shared visual theme |
+| `car-information.html`, `car-information.js`, `car-information.css` | Employee service records and customer status portal |
+| `login.html`, `login.js`, `login.css` | Employee Google sign-in |
+| `vehicles.html`, `vehicles.js`, `vehicles-api.js` | Authenticated vehicle inventory intake and Supabase helpers |
+| `api/` | Vercel serverless AI endpoints |
+| `supabase/migrations/` | Database schema, policies, customer lookup, and archive functions |
+| `favicon.svg` | FlowDrive browser-tab icon |
+
+Other implementation notes are in [`README-supabase-integration.md`](README-supabase-integration.md), [`README-AI-INSPECTION.md`](README-AI-INSPECTION.md), and [`README-AI-VOICE.md`](README-AI-VOICE.md).
