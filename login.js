@@ -1,7 +1,6 @@
 import { supabase, supabaseConfigured } from './vehicles-api.js';
 
 const signInView = document.getElementById('signInView');
-const verifyView = document.getElementById('verifyView');
 const successView = document.getElementById('successView');
 const googleButton = document.getElementById('googleButton');
 
@@ -17,7 +16,6 @@ function showSignInError(message) {
 
 function showSignedInUser(user) {
   signInView.hidden = true;
-  verifyView.hidden = true;
   successView.hidden = false;
   successView.querySelector('.intro').textContent = `Signed in as ${user.email}. Your Google account has been verified.`;
 }
