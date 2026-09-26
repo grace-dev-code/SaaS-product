@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { findCustomerVehicle, supabaseConfigured } from '../lib/supabase.js';
+import { findCustomerServiceRecord, supabaseConfigured } from '../lib/supabase.js';
 
 const steps = [
   { id: 'received', label: 'Checked in', caption: 'Your vehicle is with our team.' },
@@ -31,10 +31,10 @@ export default function App() {
     event.preventDefault();
     setError('');
     setVehicle(null);
-    if (!code.trim()) return setError('Enter the status access code provided by your service team.');
+    if (!code.trim()) return setError('Enter the customer code provided by your service team.');
     setBusy(true);
     try {
-      const result = await findCustomerVehicle(code);
+      const result = await findCustomerServiceRecord(code);
       if (!result) setError('We could not find a vehicle for that code. Check it and try again.');
       else setVehicle(result);
     } catch (lookupError) {
@@ -66,8 +66,8 @@ export default function App() {
           <div className="lookup-card-heading"><div className="lookup-icon">⌕</div><div><p className="eyebrow">SECURE VEHICLE LOOKUP</p><h2>Check your car’s status</h2></div></div>
           <p className="lookup-copy">Enter the status access code your service team gave you.</p>
           <form onSubmit={handleSubmit}>
-            <label htmlFor="access-code">Status access code</label>
-            <div className="input-wrap"><span aria-hidden="true">#</span><input id="access-code" autoComplete="one-time-code" value={code} onChange={event => setCode(event.target.value)} placeholder="Enter your 32-character code" /></div>
+            <label htmlFor="access-code">Customer code</label>
+            <div className="input-wrap"><span aria-hidden="true">#</span><input id="access-code" autoComplete="one-time-code" value={code} onChange={event => setCode(event.target.value)} placeholder="Enter your customer code" /></div>
             <button className="lookup-button" type="submit" disabled={busy || !supabaseConfigured}>{busy ? 'Checking status…' : 'View vehicle status'} <span aria-hidden="true">→</span></button>
           </form>
           {!supabaseConfigured && <p className="inline-error" role="status">Supabase connection is not configured. Please contact the dealership.</p>}
@@ -77,14 +77,14 @@ export default function App() {
       </section>
 
       {vehicle ? <section className="status-section" aria-live="polite">
-        <div className="status-heading"><div><p className="eyebrow">YOUR VEHICLE</p><h2>{vehicle.year} {vehicle.make} {vehicle.model}</h2><p className="vehicle-subtitle">{vehicle.stock_number ? `Stock ${vehicle.stock_number}` : 'Service update'} · Status updated {formatDate(vehicle.updated_at)}</p></div><span className={`status-pill ${isReady ? 'ready' : ''}`}><i />{statusLabels[currentStatus] || 'In service'}</span></div>
+        <div className="status-heading"><div><p className="eyebrow">YOUR VEHICLE</p><h2>{vehicle.vehicle || 'Vehicle in service'}</h2><p className="vehicle-subtitle">{vehicle.plate ? `Registration ${vehicle.plate}` : 'Service update'} · Status updated {formatDate(vehicle.updated_at)}</p></div><span className={`status-pill ${isReady ? 'ready' : ''}`}><i />{statusLabels[currentStatus] || 'In service'}</span></div>
         <div className="status-panel">
           <div className="timeline">
             {steps.map((step, index) => <div className={`timeline-step ${index < activeStep ? 'complete' : ''} ${index === activeStep ? 'active' : ''}`} key={step.id}>
               <span className="step-marker">{index < activeStep ? '✓' : String(index + 1).padStart(2, '0')}</span><div><b>{step.label}</b><small>{index === activeStep ? step.caption : index < activeStep ? 'Complete' : 'Up next'}</small></div>
             </div>)}
           </div>
-          <aside className="update-card"><p className="eyebrow">A NOTE FROM THE TEAM</p><h3>{isReady ? 'Your vehicle is ready.' : 'We’re keeping things moving.'}</h3><p>{vehicle.public_note || (isReady ? 'Please contact your service team to arrange pickup.' : 'Your service team will update this page as work progresses.')}</p>{vehicle.estimated_completion_at && !isReady && <div className="eta"><span>Estimated completion</span><b>{formatDate(vehicle.estimated_completion_at)}</b></div>}</aside>
+          <aside className="update-card"><p className="eyebrow">A NOTE FROM THE TEAM</p><h3>{isReady ? 'Your vehicle is ready.' : 'We’re keeping things moving.'}</h3><p>{isReady ? 'Please contact your service team to arrange pickup.' : 'Your service team will update this page as work progresses.'}</p></aside>
         </div>
       </section> : <section className="preview-section">
         <div className="preview-heading"><p className="eyebrow">WHAT YOU’LL SEE</p><h2>Clear updates, without the guesswork.</h2></div>
