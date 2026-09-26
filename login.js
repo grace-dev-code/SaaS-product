@@ -18,6 +18,7 @@ function showSignedInUser(user) {
   signInView.hidden = true;
   successView.hidden = false;
   successView.querySelector('.intro').textContent = `Signed in as ${user.email}. Your Google account has been verified.`;
+  window.location.replace('car-information.html');
 }
 
 if (!supabaseConfigured) {
