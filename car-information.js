@@ -6,14 +6,12 @@
   const AI_ANALYSIS_ENDPOINT = window.FIELDNOTE_AI_ENDPOINT || '';
   const DB_NAME = 'fieldnote_vehicle_records';
   const STORE = 'vehicles';
-  // Keep these browser-safe project values in sync with supabase-config.js. Local file previews
-  // deliberately use IndexedDB so the complete interface works without a server or sign-in.
+  // Keep these browser-safe project values in sync with supabase-config.js.
+  // Both the mechanic and customer views read the shared Supabase service-records data.
   const SUPABASE_URL = 'https://udkwrdbrvfhmyewomcsx.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_oE_u-bKil_B8jjVb2r-lCw_u2Nq-uks';
-  const isLocalPreview = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
   const supabaseConfigured = !!(window.supabase?.createClient && SUPABASE_URL && SUPABASE_ANON_KEY);
   const supabase = supabaseConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-  let useLocalStorage = isLocalPreview || !supabase;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const nowISO = () => new Date().toISOString();
@@ -41,17 +39,13 @@
     });
   }
   async function allRecords(){
-    if(useLocalStorage)return readLegacyRecords();
+    if(!supabase)throw new Error('Supabase could not be loaded. Check your connection and refresh the page.');
     const {data,error}=await supabase.from('service_records').select('id,plate,customer_code,record_data,created_by').order('created_at',{ascending:false});
     if(error)throw error;
     return(data||[]).map(row=>({...row.record_data,id:row.id,plate:row.plate,customerCode:row.customer_code,createdBy:row.created_by}));
   }
   async function saveRecord(record){
-    if(useLocalStorage){
-      const database=await openLegacyDb();
-      try{await legacyDbRequest(database,'readwrite',store=>store.put(record));}finally{database.close();}
-      return;
-    }
+    if(!supabase)throw new Error('Supabase could not be loaded. Check your connection and refresh the page.');
     const {data:{session},error:sessionError}=await supabase.auth.getSession();
     if(sessionError)throw sessionError;
     if(!session?.user)throw new Error('Sign in to save service records to the shared workspace.');
@@ -174,25 +168,13 @@
   }
   async function init(){
     activateViewMode();initEvents();
-    $('.storage-state').innerHTML=`<i></i> ${useLocalStorage?'Local test workspace · changes stay in this browser':'Shared Supabase workspace'}`;
-    if(useLocalStorage){
-      try{
-        const saved=await readLegacyRecords(),savedIds=new Set(saved.map(record=>record.id));
-        for(const sample of seedRecords())if(!savedIds.has(sample.id))await saveRecord(sample);
-        await reload();
-        if(customerView)$('#customerCodeMessage').textContent='Try a demo code: FN-DEMO-482, FN-DEMO-731, FN-DEMO-205, or FN-DEMO-619.';
-      }catch(error){console.error(error);toast(error.message||'Could not open the local test workspace.');}
-      return;
-    }
+    $('.storage-state').innerHTML='<i></i> Shared Supabase workspace';
+    if(!supabase){toast('Supabase could not be loaded. Check your connection and refresh the page.');return;}
     if(customerView)return;
     try{
       const {data:{session},error:authError}=await supabase.auth.getSession();
       if(authError)throw authError;
       if(!session?.user){window.location.replace('login.html');return;}
-      const existing=await allRecords(),existingIds=new Set(existing.map(record=>record.id));
-      const legacy=(await readLegacyRecords()).filter(record=>!String(record.id||'').startsWith('sample-')&&!existingIds.has(record.id));
-      for(const item of legacy){const record=normalizeRecord(item);record.customerCode||=newCustomerCode();await saveRecord(record);}
-      if(legacy.length)toast('Existing local service records moved to the shared database.');
       await reload();
       supabase.channel('service-records-updates').on('postgres_changes',{event:'*',schema:'public',table:'service_records'},()=>reload().catch(error=>console.error(error))).subscribe();
     }catch(error){console.error(error);toast(error.message||'Could not connect to the shared service records database.');}
