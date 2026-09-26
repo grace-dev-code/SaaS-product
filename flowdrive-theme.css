@@ -52,6 +52,7 @@ body { background: var(--paper); color: var(--ink); font-family: var(--font); }
 }
 .board, .customer-vehicle, .intake-card { border-radius: 8px; }
 .customer-access { background: var(--forest); border-radius: 8px; }
+.customer-access h1 { color: var(--white); }
 .customer-access-copy { border-color: #ffffff2b; }
 .customer-access-form { border-radius: 6px; }
 .customer-access-note { background: #ffffff12; border-color: #ffffff20; }
