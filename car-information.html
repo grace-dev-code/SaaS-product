@@ -3,29 +3,31 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#f6f7f5" />
-  <title>Fieldnote · Vehicle Service Records</title>
-  <link rel="stylesheet" href="./car-information.css?v=fieldnote-records-12" />
+  <meta name="theme-color" content="#f5f2ea" />
+  <meta name="description" content="Manage vehicle service records or check a customer vehicle status with FlowDrive." />
+  <title>FlowDrive | Vehicle service records</title>
+  <link rel="stylesheet" href="./car-information.css?v=flowdrive-13" />
   <link rel="stylesheet" href="./vehicle-inspection.css" />
+  <link rel="stylesheet" href="./flowdrive-theme.css" />
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./index.html" aria-label="Go to the Fieldnote home page"><span class="brand-mark">F</span><span class="brand-name">fieldnote<small>VEHICLE SERVICE</small></span></a>
+    <a class="brand" href="./index.html" aria-label="FlowDrive home"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="13.5" cy="13.5" r="9.5" /><path d="m20.5 20.5 5 5" /></svg><span class="brand-name">flowdrive<small>VEHICLE SERVICE</small></span></a>
     <div class="top-actions"><span class="storage-state"><i></i> Shared Supabase workspace</span><a class="view-switch" id="viewSwitchLink" href="?view=customer">Switch to customer view →</a><button class="icon-button" id="exportBtn" title="Export records" aria-label="Export records">⇧</button><button class="primary-button" id="addCarBtn"><span>＋</span> New service record</button></div>
   </header>
   <main class="main" id="staffMain">
-    <section class="page-heading"><div><div class="eyebrow">SERVICE OPERATIONS</div><h1>Vehicle service records</h1><p>Find a vehicle, follow its progress, and keep every service update in one place.</p></div></section>
+    <section class="page-heading"><div><div class="eyebrow">EMPLOYEE WORKSPACE</div><h1>Vehicle service records</h1><p>Manage service details, inspection findings, and customer progress from one shared record.</p></div></section>
     <section class="board">
       <div class="board-header"><div><h2>All service records <span class="total-count" id="countAll">0</span></h2><p>Search by registration, vehicle, or customer</p></div><button class="text-button" id="backupBtn">Export backup <span>↓</span></button></div>
       <div class="toolbar"><label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search registration, vehicle, or customer" autocomplete="off"/><kbd>⌘ K</kbd></label><div class="filters" id="filters"><button class="filter active" data-filter="all">All <span id="filterAll">0</span></button><button class="filter" data-filter="not_started">Not started <span id="countNotStarted">0</span></button><button class="filter" data-filter="in_progress">In progress <span id="countActive">0</span></button><button class="filter" data-filter="completed">Completed <span id="countDone">0</span></button></div><div class="list-options"><label>Service <select id="serviceFilter"><option value="all">All types</option><option value="Wash">Wash</option><option value="Repair">Repair</option><option value="Rental">Rental</option><option value="Sales">Sales</option></select></label><label>Sort <select id="sortOrder"><option value="created_desc">Check-in · newest</option><option value="created_asc">Check-in · oldest</option><option value="updated_desc">Updated · newest</option><option value="updated_asc">Updated · oldest</option><option value="eta_asc">Predicted completion · earliest</option><option value="eta_desc">Predicted completion · latest</option></select></label></div></div>
       <div class="table-wrap"><table><thead><tr><th>VEHICLE / CUSTOMER</th><th>SERVICE</th><th>STATUS</th><th>ETA</th><th>LAST UPDATE</th><th></th></tr></thead><tbody id="vehicleRows"></tbody></table><div class="empty-state hidden" id="emptyState"><div class="empty-illustration">⌕</div><b>No service records yet</b><p>Create a service record to start tracking a vehicle.</p><button class="secondary-button" id="emptyAddBtn">＋ New service record</button></div></div>
       <div class="table-footer"><span id="listSummary">0 records</span><span>Updates are saved automatically</span></div>
     </section>
-    <footer class="footer">Fieldnote <span>·</span> Vehicle service records</footer>
+    <footer class="footer">FlowDrive <span>·</span> Vehicle service workspace</footer>
   </main>
   <main class="customer-page hidden" id="customerMain">
     <section class="customer-access">
-      <div class="customer-access-copy"><div class="eyebrow">SERVICE TRACKER</div><h1>Your car, clearly accounted for.</h1><p>Use the code from your service confirmation to see the latest workshop progress and collection status.</p><div class="customer-access-note"><span>01</span><p>Your code is private to your service record. We never show contact details here.</p></div></div>
+      <div class="customer-access-copy"><div class="eyebrow">CUSTOMER VEHICLE UPDATES</div><h1>Your vehicle’s progress,<br />made clear.</h1><p>Enter the access code your service team shared to see the latest workshop progress and collection status.</p><div class="customer-access-note"><span>01</span><p>Your code only shows the service record shared with you.</p></div></div>
       <form id="customerCodeForm" class="customer-access-form"><label for="customerCodeInput">Customer access code</label><div class="customer-code-input"><input id="customerCodeInput" autocomplete="off" placeholder="FN-XXXXXXXX" required><button class="primary-button" type="submit">View status <span>→</span></button></div><p>Check your booking confirmation if you cannot find your code.</p><div id="customerCodeMessage" class="customer-code-message" role="status"></div></form>
     </section>
     <section class="customer-results hidden" id="customerResults" aria-live="polite"></section>
@@ -60,6 +62,6 @@
   <div class="overlay hidden merge-notice-overlay" id="mergeNoticeOverlay"><section class="modal merge-notice" role="dialog" aria-modal="true" aria-labelledby="mergeNoticeTitle"><div class="merge-success-mark">✓</div><div class="eyebrow">VEHICLE RECORD UPDATED</div><h2 id="mergeNoticeTitle">Service items added</h2><p id="mergeNoticeText">This vehicle is currently being serviced. New service items have been added to the existing vehicle record.</p><div class="modal-actions"><button class="secondary-button" data-close="mergeNoticeOverlay">Close</button><button class="primary-button" id="viewMergedRecordBtn">View vehicle record <span>→</span></button></div></section></div>
   <div class="toast" id="toast" role="status"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./car-information.js?v=fieldnote-records-12"></script>
+  <script src="./car-information.js?v=flowdrive-13"></script>
 </body>
 </html>
