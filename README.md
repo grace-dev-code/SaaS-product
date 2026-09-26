@@ -1,13 +1,23 @@
 # FlowDrive
 
-FlowDrive's vehicle intake prototype. The vehicle form and the other pages use the same Supabase `vehicles` table through the shared functions in `vehicles-api.js`.
+FlowDrive's vehicle workflow prototype. The root page is a React customer status portal; employee pages remain available at `/login.html`, `/vehicles.html`, `/car-information.html`, `/service-records.html`, and `/dashboard.html`.
+
+## Customer status portal
+
+The React landing page looks up vehicles through the `get_customer_vehicle_status` Supabase RPC. Customers enter the access code shown to employees on the vehicle intake page. The RPC returns only the vehicle label, customer status, public note, estimated completion time, and update time; it does not expose VINs or allow anonymous reads of the employee vehicle table.
+
+After applying the migrations below, employees can update `customer_status` (`received`, `inspection`, `in_progress`, or `ready`), `public_note`, and `estimated_completion_at` on a vehicle row in the shared Supabase project. Share the generated `customer_access_code` with that vehicle's customer.
+
+## Run and deploy the React landing page
+
+Install dependencies with `npm install`, then start locally with `npm run dev`. Vercel uses the included `vercel.json` and Vite configuration; connect the Git repository to Vercel and deploy the `user-side-status-portal` branch or merge it when ready. The existing `supabase-config.js` values are used by default. For Vercel environment configuration, set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to the same project URL and browser-safe publishable/anon key.
 
 ## Connect the shared Supabase project
 
 1. Use the team's existing Supabase project, or create one for FlowDrive. The database project is shared across Git branches; branches share records when each is configured with this same project URL and public publishable (anon) key.
-2. In the Supabase SQL Editor, run [`supabase/migrations/202609260001_create_vehicles.sql`](supabase/migrations/202609260001_create_vehicles.sql) once.
+2. In the Supabase SQL Editor, run [`supabase/migrations/202609260001_create_vehicles.sql`](supabase/migrations/202609260001_create_vehicles.sql) and [`supabase/migrations/202609260002_customer_status_portal.sql`](supabase/migrations/202609260002_customer_status_portal.sql) once each.
 3. Copy the project URL and publishable/anon key from Supabase **Project Settings → API** into [`supabase-config.js`](supabase-config.js). These are browser-safe public values. Never use a `service_role` or secret key in this file.
-4. Serve this folder over HTTP (for example `python -m http.server 8000`) and open `/vehicles.html`. The page supports Supabase email/password sign-up and sign-in. Enable email/password auth in the Supabase project.
+4. Sign in at `/login.html` with the approved dealership Google account, then use `/vehicles.html` to add a vehicle and share its customer status code.
 5. Share the same project URL, public key and migration with teammates so their branches connect to the same vehicle data. Do not create a separate Supabase project per branch.
 
 The initial RLS policies treat authenticated accounts in this Supabase project as members of one shared workspace: signed-in users can read and update its vehicles, and new records record their creator. If the product later needs multiple dealerships with private inventories, add organization membership and tenant-scoped policies before onboarding those dealerships.
