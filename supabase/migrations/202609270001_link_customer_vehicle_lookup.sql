@@ -16,7 +16,8 @@ as $$
           then right(regexp_replace(coalesce(nullif(trim(sr.customer_phone), ''), sr.record_data ->> 'phone', ''), '[^0-9]', '', 'g'), 9)
         else nullif(regexp_replace(coalesce(nullif(trim(sr.customer_phone), ''), sr.record_data ->> 'phone', ''), '[^0-9]', '', 'g'), '')
       end as phone_key,
-      nullif(lower(trim(coalesce(nullif(trim(sr.customer_email), ''), sr.record_data ->> 'email', ''))), '') as email_key
+      nullif(lower(trim(coalesce(nullif(trim(sr.customer_email), ''), sr.record_data ->> 'email', ''))), '') as email_key,
+      nullif(lower(regexp_replace(trim(coalesce(nullif(trim(sr.customer_name), ''), sr.record_data ->> 'customer', '')), '\s+', ' ', 'g')), '') as name_key
     from public.service_records sr
   ),
   anchors as (
@@ -32,6 +33,7 @@ as $$
       where candidate.id = anchor.id
          or (candidate.email_key is not null and candidate.email_key = anchor.email_key)
          or (candidate.phone_key is not null and length(candidate.phone_key) >= 7 and candidate.phone_key = anchor.phone_key)
+         or (candidate.name_key is not null and candidate.name_key = anchor.name_key)
     )
   )
   select jsonb_build_object(

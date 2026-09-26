@@ -111,3 +111,10 @@ thead { background: #f5f2ea; }
   .customer-page { padding: 25px 14px 40px; }
   .customer-access-copy { border-right: 0; border-bottom: 1px solid var(--line); }
 }
+/* Keep the customer name visible in the mobile existing-vehicle picker. */
+@media(max-width:760px){#vehicleSuggestions .suggestion-customer{display:block!important;visibility:visible!important;opacity:1!important;min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;color:#36433c!important;font-size:11px!important;line-height:1.25}.vehicle-suggestion{grid-template-columns:minmax(66px,.75fr) minmax(0,1.25fr)!important;min-height:48px}}
+/* Make the reused-photo marker readable over both vehicle thumbnails and detail photos. */
+.photo-stale-badge{z-index:5;display:block;background:rgba(65,70,67,.92);color:#fff;font-size:9px;font-weight:700;letter-spacing:.05px;padding:4px 6px;text-shadow:0 1px 1px #222}
+@media(max-width:760px){.photo-stale-badge{font-size:8px;padding:3px 5px}}
+@media(max-width:760px){.car-thumb .photo-stale-badge,.customer-record-photo .photo-stale-badge{font-size:8px;padding:2px 3px;max-width:calc(100% - 4px)}}
+@media(max-width:760px){#vehicleSuggestions .suggestion-customer{overflow:visible;text-overflow:clip}}
