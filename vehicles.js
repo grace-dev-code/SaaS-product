@@ -25,6 +25,7 @@ function renderVehicles(vehicles) {
     <article class="vehicle-item">
       <div class="vehicle-item-top"><div><h3>${escapeHtml(vehicle.year)} ${escapeHtml(vehicle.make)} ${escapeHtml(vehicle.model)}${vehicle.trim ? ` ${escapeHtml(vehicle.trim)}` : ''}</h3><p>VIN ····${escapeHtml(vehicle.vin.slice(-4))}</p></div><span class="vehicle-year">${vehicle.mileage == null ? '—' : `${Number(vehicle.mileage).toLocaleString()} km`}</span></div>
       <div class="vehicle-meta"><span>${vehicle.stock_number ? `Stock ${escapeHtml(vehicle.stock_number)}` : 'No stock number'}</span><span>${escapeHtml(vehicle.fuel_type || 'Fuel not set')}</span></div>
+      <a class="vehicle-open" href="car-information.html?vehicleId=${encodeURIComponent(vehicle.id)}">Open vehicle record →</a>
     </article>`).join('');
 }
 

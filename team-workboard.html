@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f6f7f3" />
+  <title>Staff workboard — FlowDrive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="team-workboard.css" />
+    <link rel="stylesheet" href="canonical-workflow.css" />
+</head>
+<body class="auth-pending">
+  <aside class="sidebar">
+    <a class="brand" href="index.html"><i></i> flowdrive</a>
+    <div class="workspace"><span class="workspace-mark">F</span><span><b>FlowDrive</b><small>Staff workspace</small></span><span class="chevron">⌄</span></div>
+    <p class="nav-label">WORK</p>
+    <a class="nav-link active" href="team-workboard.html"><span>▦</span> Workboard</a>
+    <a class="nav-link" href="service-records.html"><span>▤</span> Service records</a>
+    <a class="nav-link" href="vehicles.html"><span>▣</span> Vehicle inventory</a>
+    <div class="sidebar-bottom">
+      <div class="tip"><b>Keep cars moving</b><p>Complete your current job to open the next team slot.</p></div>
+      <div class="profile"><span class="avatar" id="user-initials">FD</span><span><b id="user-name">Loading account</b><small id="user-role">Staff</small></span></div>
+      <button class="signout" id="sign-out">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="page-header">
+      <div><p class="eyebrow" id="view-kicker">STAFF WORKSPACE</p><h1 id="view-title">My jobs</h1><p id="view-description">Jobs assigned to your account.</p></div>
+      <button class="primary-button" id="add-job" hidden><span>＋</span> Add car &amp; assign job</button>
+    </header>
+
+    <section class="summary-grid" id="summary-grid" aria-label="Work summary"></section>
+    <div class="notice" id="page-message" role="status" hidden></div>
+
+    <section class="jobs-panel">
+      <div class="panel-heading"><div><p class="eyebrow" id="list-kicker">YOUR ASSIGNMENTS</p><h2 id="list-title">Active jobs</h2></div><label class="filter-wrap" id="manager-filter-wrap" hidden><span>Show</span><select id="manager-filter"><option value="active">Active jobs</option><option value="all">All jobs</option><option value="completed">Completed</option></select></label></div>
+      <div class="table-scroll"><table><thead><tr id="jobs-head"></tr></thead><tbody id="jobs-body"></tbody></table></div>
+      <div class="empty-state" id="empty-state" hidden><span>✓</span><h3 id="empty-title">You’re all caught up</h3><p id="empty-copy">New jobs assigned to you will appear here.</p></div>
+    </section>
+    <footer class="page-footer"><span>FlowDrive · Staff workboard</span><span>Jobs are private to their assigned staff and managers.</span></footer>
+  </main>
+
+  <dialog class="job-dialog" id="job-dialog">
+    <form id="job-form">
+      <div class="dialog-header"><div><p class="eyebrow">MANAGER DISPATCH</p><h2 id="dialog-title">Add a car and assign work</h2><p>Add one job at a time. Use the same registration for the car’s next service stage.</p></div><button type="button" class="dialog-close" id="close-dialog" aria-label="Close">×</button></div>
+      <label>Vehicle <input name="vehicle_name" required maxlength="120" placeholder="2023 Toyota RAV4" /></label>
+      <label>Link to canonical inventory vehicle (optional)<select name="vehicle_id" id="canonical-vehicle-select"><option value="">Manual vehicle entry</option></select></label>
+      <div class="form-row"><label>Registration <input name="registration" maxlength="20" placeholder="NZT205" /></label><label>Stock number <input name="stock_number" maxlength="40" placeholder="Stock #4182" /></label></div>
+      <label>Job <input name="work_title" required maxlength="160" placeholder="Brake repair, wash &amp; detail…" /></label>
+      <div class="form-row"><label>Department<select name="department" required><option value="service">Service &amp; repair</option><option value="body_shop">Body shop</option><option value="inspection">Inspection</option><option value="wash">Wash &amp; detail</option></select></label><label>Estimated minutes<input name="estimated_minutes" type="number" min="1" max="10000" value="60" required /></label></div>
+      <div class="form-row"><label>Assign to staff email<input name="assigned_to_email" type="email" required maxlength="254" placeholder="staff@dealership.com" /></label><label>Due date<input name="due_date" type="date" /></label></div>
+      <label>Priority<select name="priority"><option value="1">Urgent</option><option value="2">High</option><option value="3" selected>Normal</option><option value="4">Flexible</option></select></label>
+      <p class="form-hint">Use the exact Google sign-in email and the same registration for every job on a car. Wash jobs remain blocked until its other work is complete.</p>
+      <p class="form-error" id="form-error" hidden></p>
+      <div class="dialog-actions"><button type="button" class="secondary-button" id="cancel-dialog">Cancel</button><button class="primary-button" id="save-job" type="submit">Add job</button></div>
+    </form>
+  </dialog>
+
+  <script type="module" src="team-workboard.js"></script>
+</body>
+</html>

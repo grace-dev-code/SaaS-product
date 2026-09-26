@@ -7,3 +7,8 @@ document.querySelectorAll('.why-button').forEach((button) => {
     detail.hidden = isOpen;
   });
 });
+
+if (window.location.protocol === 'file:') {
+  const signInLink = document.querySelector('.nav-button');
+  if (signInLink) signInLink.href = 'http://localhost:8000/login.html?next=team-workboard.html';
+}

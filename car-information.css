@@ -55,3 +55,5 @@ tr.record-completed:hover td{background:#e7eae7}
 .customer-working .eta-remaining{color:#927a3f;margin:0}
 @media(max-width:760px){.vehicle-suggestion{grid-template-columns:70px 1fr 58px}.suggestion-customer{display:none}.mini-event{grid-template-columns:78px minmax(0,1fr);gap:8px}.customer-status-banner{margin:10px;padding:11px;align-items:flex-start}.customer-working .customer-eta-block{align-items:flex-end}}
 .voice-actions{display:flex;align-items:center;gap:8px}.ai-beta-note{font-size:8px;color:#a0806a;white-space:nowrap}@media(max-width:520px){.voice-actions{gap:5px}.ai-beta-note{white-space:normal;text-align:right;max-width:100px}}
+
+.danger-button{height:33px;border:1px solid #f0d9d5;background:#fff;color:#ad5148;border-radius:6px;padding:0 11px;font-size:10px}.danger-button:hover{background:#fff5f3;border-color:#dfb8b3}.detail-section-actions .danger-button{margin-left:auto}@media(max-width:760px){.detail-section-actions .danger-button{margin-left:0}}

@@ -6,14 +6,20 @@
   <meta name="theme-color" content="#f6f7f5" />
   <title>Fieldnote · Vehicle Service Records</title>
   <link rel="stylesheet" href="./car-information.css?v=fieldnote-records-9" />
+  <link rel="stylesheet" href="./canonical-workflow.css" />
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="#" aria-label="Fieldnote home"><span class="brand-mark">F</span><span class="brand-name">fieldnote<small>VEHICLE SERVICE</small></span></a>
-    <div class="top-actions"><span class="storage-state"><i></i> Saved on this device</span><a class="view-switch" id="viewSwitchLink" href="?view=customer">Switch to customer view →</a><button class="icon-button" id="exportBtn" title="Export records" aria-label="Export records">⇧</button><button class="primary-button" id="addCarBtn"><span>＋</span> New service record</button></div>
+    <div class="top-actions"><span class="storage-state"><i></i> Shared Supabase database</span><button class="view-switch" id="importLegacyBtn" type="button" hidden>Import saved records</button><a class="view-switch" id="staffQueueLink" href="./team-workboard.html" hidden>Staff work queue →</a><a class="view-switch" id="viewSwitchLink" href="?view=customer">Switch to customer view →</a><button class="icon-button" id="exportBtn" title="Export records" aria-label="Export records">⇧</button><button class="primary-button" id="addCarBtn"><span>＋</span> New service record</button></div>
   </header>
   <main class="main" id="staffMain">
     <section class="page-heading"><div><div class="eyebrow">SERVICE OPERATIONS</div><h1>Vehicle service records</h1><p>Find a vehicle, follow its progress, and keep every service update in one place.</p></div></section>
+    <section class="canonical-vehicle hidden" id="canonicalVehicle" aria-live="polite">
+      <div class="canonical-vehicle-heading"><div><div class="eyebrow">CANONICAL VEHICLE · SUPABASE</div><h2 id="canonicalVehicleTitle"></h2><p id="canonicalVehicleMeta"></p></div><div><a class="view-switch" id="assignCanonicalJob" href="team-workboard.html">Assign a staff job →</a><a class="view-switch" href="vehicles.html">← Vehicle inventory</a></div></div>
+      <dl class="canonical-vehicle-details" id="canonicalVehicleDetails"></dl>
+      <div class="legacy-link"><div><b>Bring this browser’s existing service records into this vehicle</b><p>Choose a local record to associate it with this vehicle. Its history is saved in the shared service records table and its photo is uploaded to private storage.</p></div><div class="legacy-link-actions"><select id="legacyRecordSelect" aria-label="Local service record to link"><option value="">No unlinked local records</option></select><button class="secondary-button" id="linkLegacyRecord" type="button">Link record</button></div></div>
+    </section>
     <section class="board">
       <div class="board-header"><div><h2>All service records <span class="total-count" id="countAll">0</span></h2><p>Search by registration, vehicle, or customer</p></div><button class="text-button" id="backupBtn">Export backup <span>↓</span></button></div>
       <div class="toolbar"><label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search registration, vehicle, or customer" autocomplete="off"/><kbd>⌘ K</kbd></label><div class="filters" id="filters"><button class="filter active" data-filter="all">All <span id="filterAll">0</span></button><button class="filter" data-filter="not_started">Not started <span id="countNotStarted">0</span></button><button class="filter" data-filter="in_progress">In progress <span id="countActive">0</span></button><button class="filter" data-filter="completed">Completed <span id="countDone">0</span></button></div></div>
@@ -52,6 +58,6 @@
   <div class="overlay hidden" id="resumeServiceOverlay"><section class="modal status-modal" role="dialog" aria-modal="true" aria-labelledby="resumeServiceTitle"><div class="modal-head"><div><div class="eyebrow">RETURNING VEHICLE</div><h2 id="resumeServiceTitle">Continue a previous service</h2><p id="resumeServiceVehicle"></p></div><button class="close-button" data-close="resumeServiceOverlay" aria-label="Close">×</button></div><div id="resumeServiceOptions" class="resume-options"></div><div class="modal-actions"><button type="button" class="secondary-button" data-close="resumeServiceOverlay">Cancel</button></div></section></div>
   <div class="overlay hidden merge-notice-overlay" id="mergeNoticeOverlay"><section class="modal merge-notice" role="dialog" aria-modal="true" aria-labelledby="mergeNoticeTitle"><div class="merge-success-mark">✓</div><div class="eyebrow">VEHICLE RECORD UPDATED</div><h2 id="mergeNoticeTitle">Service items added</h2><p id="mergeNoticeText">This vehicle is currently being serviced. New service items have been added to the existing vehicle record.</p><div class="modal-actions"><button class="secondary-button" data-close="mergeNoticeOverlay">Close</button><button class="primary-button" id="viewMergedRecordBtn">View vehicle record <span>→</span></button></div></section></div>
   <div class="toast" id="toast" role="status"></div>
-  <script src="./car-information.js?v=fieldnote-records-9"></script>
+  <script type="module" src="./car-information.js?v=fieldnote-records-10"></script>
 </body>
 </html>
