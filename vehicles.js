@@ -5,14 +5,6 @@ const message = document.querySelector('#form-message');
 const list = document.querySelector('#vehicle-list');
 const count = document.querySelector('#vehicle-count');
 const submitButton = form.querySelector('button[type="submit"]');
-const authPanel = document.querySelector('#auth-panel');
-const authForm = document.querySelector('#auth-form');
-const authMessage = document.querySelector('#auth-message');
-const authToggle = document.querySelector('#auth-toggle');
-const authSubmit = document.querySelector('#auth-submit');
-const signedInPanel = document.querySelector('#signed-in-panel');
-const signedInEmail = document.querySelector('#signed-in-email');
-let isSigningUp = false;
 
 function showMessage(text, type = '') {
   message.textContent = text;
@@ -41,71 +33,22 @@ async function refreshVehicles() {
   renderVehicles(vehicles);
 }
 
-function renderAuth(session) {
-  authPanel.hidden = !supabaseConfigured || Boolean(session);
-  signedInPanel.hidden = !supabaseConfigured || !session;
-  if (session) signedInEmail.textContent = `Signed in as ${session.user.email}`;
-  submitButton.disabled = !session;
-  if (!session) {
-    list.innerHTML = '<p class="list-empty">Sign in to load your workspace vehicles.</p>';
-    count.textContent = 'Sign in required';
-  } else {
-    refreshVehicles().catch((error) => {
-      showMessage(error.message);
-      list.innerHTML = '<p class="list-empty">Could not load vehicles. Check the Supabase setup and access policies.</p>';
-    });
-  }
-}
-
 if (!supabaseConfigured) {
   showMessage('Connect this page to your shared Supabase project to save and load vehicles. See README for setup.', '');
   list.innerHTML = '<p class="list-empty">Set up the shared Supabase project to see vehicle records.</p>';
   count.textContent = 'Setup needed';
 } else {
   const { data: { session } } = await supabase.auth.getSession();
-  renderAuth(session);
-  supabase.auth.onAuthStateChange((_event, nextSession) => renderAuth(nextSession));
+  if (!session) {
+    window.location.replace('login.html');
+  } else {
+    refreshVehicles().catch((error) => {
+      showMessage(error.message);
+      list.innerHTML = '<p class="list-empty">Could not load vehicles. Check the Supabase setup and access policies.</p>';
+    });
+  }
   supabase.channel('vehicles-updates').on('postgres_changes', { event: '*', schema: 'public', table: 'vehicles' }, () => refreshVehicles()).subscribe();
 }
-
-authToggle.addEventListener('click', () => {
-  isSigningUp = !isSigningUp;
-  document.querySelector('#auth-title').textContent = isSigningUp ? 'Create your workspace account' : 'Sign in to your workspace';
-  document.querySelector('#auth-help').textContent = isSigningUp ? 'Invite your teammates to use the same FlowDrive workspace.' : 'Use your FlowDrive team account to access shared vehicle records.';
-  authSubmit.innerHTML = isSigningUp ? 'Create account <b>→</b>' : 'Sign in <b>→</b>';
-  authToggle.textContent = isSigningUp ? 'Already have an account? Sign in' : 'Create an account';
-  authForm.elements.password.autocomplete = isSigningUp ? 'new-password' : 'current-password';
-  authMessage.textContent = '';
-});
-
-authForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  authSubmit.disabled = true;
-  authMessage.textContent = '';
-  const { email, password } = Object.fromEntries(new FormData(authForm).entries());
-  try {
-    const result = isSigningUp
-      ? await supabase.auth.signUp({ email, password })
-      : await supabase.auth.signInWithPassword({ email, password });
-    if (result.error) throw result.error;
-    if (isSigningUp && !result.data.session) {
-      authMessage.textContent = 'Check your email to confirm your account, then sign in.';
-    } else {
-      authMessage.className = 'form-message success';
-      authMessage.textContent = isSigningUp ? 'Account created. You are signed in.' : 'Signed in successfully.';
-    }
-  } catch (error) {
-    authMessage.className = 'form-message';
-    authMessage.textContent = error.message;
-  } finally {
-    authSubmit.disabled = false;
-  }
-});
-
-document.querySelector('#sign-out').addEventListener('click', async () => {
-  const { error } = await supabase.auth.signOut();
-  if (error) showMessage(error.message);
-});
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();

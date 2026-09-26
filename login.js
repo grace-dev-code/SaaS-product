@@ -1,30 +1,31 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
+import { supabase, supabaseConfigured } from './vehicles-api.js';
 
 const signInView = document.getElementById('signInView');
 const successView = document.getElementById('successView');
 const googleButton = document.getElementById('googleButton');
-const message = document.getElementById('authMessage');
-const signedInMessage = document.getElementById('signedInMessage');
 
-const isConfigured = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('YOUR_PROJECT_REF') && !SUPABASE_ANON_KEY.includes('YOUR_SUPABASE');
-
-function showMessage(text) {
-  message.textContent = text;
-  message.hidden = false;
+function showSignInError(message) {
+  const existing = document.getElementById('authError');
+  if (existing) existing.remove();
+  const error = document.createElement('p');
+  error.id = 'authError';
+  error.className = 'auth-error';
+  error.textContent = message;
+  googleButton.insertAdjacentElement('afterend', error);
 }
 
-if (!isConfigured) {
-  showMessage('Add your Supabase URL and publishable key to supabase-config.js before signing in.');
+function showSignedInUser(user) {
+  signInView.hidden = true;
+  successView.hidden = false;
+  successView.querySelector('.intro').textContent = `Signed in as ${user.email}. Your Google account has been verified.`;
+}
+
+if (!supabaseConfigured) {
   googleButton.disabled = true;
+  showSignInError('Add your Supabase Project URL and publishable key to supabase-config.js to enable Google sign-in.');
 } else {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) {
-    signInView.hidden = true;
-    successView.hidden = false;
-    signedInMessage.textContent = `Signed in as ${session.user.email}.`;
-  }
+  if (session?.user) showSignedInUser(session.user);
 
   googleButton.addEventListener('click', async () => {
     googleButton.disabled = true;
@@ -36,7 +37,7 @@ if (!isConfigured) {
     if (error) {
       googleButton.disabled = false;
       googleButton.innerHTML = '<span class="google-g">G</span> Continue with Google';
-      showMessage(error.message);
+      showSignInError(error.message);
     }
   });
 }
