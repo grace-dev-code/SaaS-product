@@ -24,7 +24,7 @@ function renderVehicles(vehicles) {
   list.innerHTML = vehicles.map((vehicle) => `
     <article class="vehicle-item">
       <div class="vehicle-item-top"><div><h3>${escapeHtml(vehicle.year)} ${escapeHtml(vehicle.make)} ${escapeHtml(vehicle.model)}${vehicle.trim ? ` ${escapeHtml(vehicle.trim)}` : ''}</h3><p>VIN ····${escapeHtml(vehicle.vin.slice(-4))}</p></div><span class="vehicle-year">${vehicle.mileage == null ? '—' : `${Number(vehicle.mileage).toLocaleString()} km`}</span></div>
-      <div class="vehicle-meta"><span>${vehicle.stock_number ? `Stock ${escapeHtml(vehicle.stock_number)}` : 'No stock number'}</span><span>${escapeHtml(vehicle.fuel_type || 'Fuel not set')}</span></div>
+      <div class="vehicle-meta"><span>${vehicle.stock_number ? `Stock ${escapeHtml(vehicle.stock_number)}` : 'No stock number'}</span><span>${escapeHtml(vehicle.fuel_type || 'Fuel not set')}</span><span>Customer status code: <b>${escapeHtml(vehicle.customer_access_code || 'Run the customer status migration')}</b></span></div>
     </article>`).join('');
 }
 
@@ -76,9 +76,9 @@ form.addEventListener('submit', async (event) => {
   submitButton.textContent = 'Saving…';
   showMessage('');
   try {
-    await createVehicle(values);
+    const savedVehicle = await createVehicle(values);
     form.reset();
-    showMessage('Vehicle saved to the shared workspace.', 'success');
+    showMessage(`Vehicle saved. Share customer status code ${savedVehicle.customer_access_code} with the customer.`, 'success');
     await refreshVehicles();
   } catch (error) {
     showMessage(error.code === '23505' ? 'A vehicle with this VIN is already in the workspace.' : error.message);
