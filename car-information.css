@@ -33,13 +33,6 @@ tr.record-completed:hover td{background:#e7eae7}
 .history-heading{margin:0 0 9px;color:#7d8a81;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
 .mini-event{position:relative;display:grid;grid-template-columns:102px minmax(0,1fr);gap:12px;padding:7px 0 12px;border-left:1px solid #e3eae4;margin-left:4px;padding-left:14px}
 .mini-event:before{content:'';position:absolute;left:-4px;top:11px;width:7px;height:7px;border-radius:50%;background:#7da38a;box-shadow:0 0 0 3px #eef4ef}
-.vehicle-suggestion{display:grid;grid-template-columns:1fr 1fr;justify-items:start;text-align:left;width:100%;background:#fff;cursor:pointer}
-.suggestion-plate,.suggestion-customer{font-size:10px;color:#53645a}
-.suggestion-plate{font-weight:700;color:#293930}
-.record-maintenance-actions{display:flex;gap:6px;margin-top:9px}
-.record-maintenance-actions .quiet-change{font-size:9px;padding:4px 7px}
-.archive-record{color:#987167}
-#vehicleEditOverlay{z-index:18;justify-content:center;align-items:center}
 .mini-event time{color:#98a39b;font-size:9px;line-height:1.5;white-space:nowrap}
 .event-copy{min-width:0}
 .event-copy b{display:block;color:#35443b;font-size:10px;line-height:1.45;margin:0 0 7px}

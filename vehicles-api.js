@@ -38,16 +38,15 @@ export async function updateVehicle(id, changes) {
 export async function listServiceRecords() {
   const { data, error } = await requireClient()
     .from('service_records')
-    .select('*')
+    .select('id,plate,customer_code,record_data,created_by')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return (data || []).map((row) => ({
-    ...(row.record_data || {}),
-    id: String(row.id), plate: row.plate, vehicle: row.vehicle,
-    customer: row.customer_name, phone: row.customer_phone, email: row.customer_email,
-    customerCode: row.customer_code, request: row.request, summaryTitle: row.summary_title,
-    photo: row.photo, services: row.services || [], status: row.status,
-    createdBy: row.created_by, createdAt: row.created_at, updatedAt: row.updated_at,
+    ...row.record_data,
+    id: row.id,
+    plate: row.plate,
+    customerCode: row.customer_code,
+    createdBy: row.created_by,
   }));
 }
 
@@ -57,19 +56,14 @@ export async function saveServiceRecord(record) {
   if (sessionError) throw sessionError;
   if (!session?.user) throw new Error('Sign in to save service records to the shared workspace.');
 
+  const recordData = { ...record };
+  delete recordData.createdBy;
+  delete recordData.showAllEvents;
   const { error } = await client.from('service_records').upsert({
     id: record.id,
     plate: record.plate,
-    vehicle: record.vehicle || null,
-    customer_name: record.customer || null,
-    customer_phone: record.phone || null,
-    customer_email: record.email || null,
-    customer_code: record.customerCode || null,
-    request: record.request || null,
-    summary_title: record.summaryTitle || null,
-    photo: record.photo || null,
-    services: record.services || [],
-    status: record.status || 'not_started',
+    customer_code: record.customerCode,
+    record_data: recordData,
     created_by: record.createdBy || session.user.id,
   }, { onConflict: 'id' });
   if (error) throw error;
