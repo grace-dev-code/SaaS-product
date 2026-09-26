@@ -12,6 +12,8 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_oE_u-bKil_B8jjVb2r-lCw_u2Nq-uks';
   const supabaseConfigured = !!(window.supabase?.createClient && SUPABASE_URL && SUPABASE_ANON_KEY);
   const supabase = supabaseConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+  const isLocalPreview = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  let useLocalStorage = isLocalPreview || !supabase;
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const nowISO = () => new Date().toISOString();
