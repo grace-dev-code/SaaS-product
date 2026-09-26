@@ -23,13 +23,6 @@
         <div class="form-wrap success-view" id="successView" hidden><div class="success-icon">✓</div><p class="eyebrow">IDENTITY CONFIRMED</p><h2>You’re all set.</h2><p class="intro">Your Google account has been verified. Taking you to your mechanic workspace now.</p><a class="primary-button" href="index.html">Return to FlowDrive <span>→</span></a></div>
       </section>
     </main>
-    <script>
-      const signIn = document.getElementById('signInView');
-      const verify = document.getElementById('verifyView');
-      const success = document.getElementById('successView');
-      document.getElementById('googleButton').onclick = () => { signIn.hidden = true; verify.hidden = false; };
-      document.getElementById('backButton').onclick = document.getElementById('changeAccount').onclick = () => { verify.hidden = true; signIn.hidden = false; };
-      document.getElementById('approveButton').onclick = () => { verify.hidden = true; success.hidden = false; };
-    </script>
+    <script type="module" src="login.js"></script>
   </body>
 </html>
